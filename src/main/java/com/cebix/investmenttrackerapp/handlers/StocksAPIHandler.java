@@ -1,22 +1,52 @@
 package com.cebix.investmenttrackerapp.handlers;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import com.cebix.investmenttrackerapp.constants.APIConstants;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
+import java.net.URI;
+import java.time.LocalDate;
+
+@Component
 public class StocksAPIHandler {
     private final String STOCKS_URL = "https://api.polygon.io/v2/aggs/ticker/";
-    private final String API_KEY = "UA1AF1IBzgbxI5dsNxYrtXcJJdtal1GI";
 
-    private final RestTemplate restTemplate;
+    private final WebClient webClient;
 
-    public StocksAPIHandler(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    @Autowired
+    public StocksAPIHandler(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl(STOCKS_URL).build();
     }
 
-    public String getStockData(String ticker, String multiplier, String timespan, String from, String to) {
-        String url = STOCKS_URL + ticker + "/range/" + multiplier + "/" + timespan + "/" + from + "/" + to + "?adjusted=true&sort=asc&limit=120&apiKey=" + API_KEY;
+    public Mono<String> getStockData(String ticker, String multiplier, String timespan, String from, String to) {
+        if (ticker == null || ticker.isEmpty()) {
+            return Mono.error(new RuntimeException("Ticker cannot be empty"));
+        }
 
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        return response.getBody();
+        LocalDate fromDate = LocalDate.parse(from);
+        LocalDate toDate = LocalDate.parse(to);
+
+        if (fromDate.isAfter(toDate)) {
+            return Mono.error(new RuntimeException("The parameter 'to' cannot be a time that occurs before 'from'"));
+        }
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(STOCKS_URL + "{ticker}/range/{multiplier}/{timespan}/{from}/{to}")
+                .queryParam("adjusted", true)
+                .queryParam("sort", "asc")
+                .queryParam("limit", 120)
+                .queryParam("apiKey", APIConstants.API_KEY);
+
+        URI uri = builder.buildAndExpand(ticker, multiplier, timespan, from, to).toUri();
+
+        return webClient.get()
+                .uri(uri)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, response -> response.bodyToMono(String.class)
+                        .flatMap(errorResponse -> Mono.error(new RuntimeException("Error occurred with status code: " + response.statusCode() + " and message: " + errorResponse))))
+                .bodyToMono(String.class);
     }
 }
