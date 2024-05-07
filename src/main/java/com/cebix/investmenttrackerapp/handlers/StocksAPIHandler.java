@@ -22,8 +22,8 @@ public class StocksAPIHandler {
         this.webClient = webClientBuilder.baseUrl(STOCKS_URL).build();
     }
 
-    public Mono<String> getStockData(String ticker, String multiplier, String timespan, String from, String to) {
-        if (ticker == null || ticker.isEmpty()) {
+    public Mono<String> getStockData(String stockTicker, String multiplier, String timespan, String from, String to) {
+        if (stockTicker == null || stockTicker.isEmpty()) {
             return Mono.error(new RuntimeException("Ticker cannot be empty"));
         }
 
@@ -40,7 +40,7 @@ public class StocksAPIHandler {
                 .queryParam("limit", 120)
                 .queryParam("apiKey", APIConstants.API_KEY);
 
-        URI uri = builder.buildAndExpand(ticker, multiplier, timespan, from, to).toUri();
+        URI uri = builder.buildAndExpand(stockTicker, multiplier, timespan, from, to).toUri();
 
         return webClient.get()
                 .uri(uri)
