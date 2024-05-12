@@ -9,6 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,12 @@ public class TechnicalIndicatorsAPIHandler {
     private Mono<String> getTechnicalIndicatorData(String stockTicker, String timestamp, String timespan, String indicator, Map<String, Object> additionalParams) {
         if (stockTicker == null || stockTicker.isEmpty()) {
             return Mono.error(new RuntimeException("Ticker cannot be empty"));
+        }
+
+        LocalDate futureTimestamp = LocalDate.parse(timestamp);
+
+        if (futureTimestamp.isAfter(LocalDate.now())) {
+            return Mono.error(new RuntimeException("The timestamp cannot be a time that occurs today date"));
         }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(TECHNICAL_INDICATORS_URL + indicator + "/{ticker}")
