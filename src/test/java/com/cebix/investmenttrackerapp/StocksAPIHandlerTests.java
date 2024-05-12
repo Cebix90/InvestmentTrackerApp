@@ -1,6 +1,8 @@
 package com.cebix.investmenttrackerapp;
 
 import com.cebix.investmenttrackerapp.handlers.StocksAPIHandler;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 @SpringBootTest
@@ -16,7 +19,7 @@ public class StocksAPIHandlerTests {
     private StocksAPIHandler stocksAPIHandler;
 
     @Test
-    public void testGetStockDataIfSuccess() {
+    public void testGetStockData_ifSuccess() {
         String stockTicker = "AAPL";
         String multiplier = "1";
         String timespan = "day";
@@ -24,7 +27,18 @@ public class StocksAPIHandlerTests {
         String to = "2024-12-31";
 
         StepVerifier.create(stocksAPIHandler.getStockData(stockTicker, multiplier, timespan, from, to))
-                .expectNextMatches(response -> response != null && !response.isEmpty())
+                .expectNextMatches(response -> {
+                    try {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        JsonNode responseJson = objectMapper.readTree(response);
+                        JsonNode queryCountNode = responseJson.get("queryCount");
+                        JsonNode resultsCountNode = responseJson.get("resultsCount");
+                        return response != null && !response.isEmpty() &&
+                                queryCountNode.asInt() != 0 && resultsCountNode.asInt() != 0;
+                    } catch (IOException e) {
+                        return false;
+                    }
+                })
                 .verifyComplete();
     }
 
