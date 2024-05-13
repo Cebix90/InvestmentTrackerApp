@@ -15,13 +15,12 @@ import java.util.Map;
 
 @Component
 public class TechnicalIndicatorsAPIHandler {
-    private final String TECHNICAL_INDICATORS_URL = "https://api.polygon.io/v1/indicators/";
+    private final static String TECHNICAL_INDICATORS_URL = "https://api.polygon.io/v1/indicators/";
 
     private final WebClient webClient;
 
-    @Autowired
-    public TechnicalIndicatorsAPIHandler(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(TECHNICAL_INDICATORS_URL).build();
+    public TechnicalIndicatorsAPIHandler() {
+        this.webClient = WebClient.builder().baseUrl(TECHNICAL_INDICATORS_URL).build();
     }
 
     private Mono<String> getTechnicalIndicatorData(String stockTicker, String timestamp, String timespan, String indicator, Map<String, Object> additionalParams) {
