@@ -1,7 +1,6 @@
 package com.cebix.investmenttrackerapp.handlers;
 
 import com.cebix.investmenttrackerapp.constants.APIConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
