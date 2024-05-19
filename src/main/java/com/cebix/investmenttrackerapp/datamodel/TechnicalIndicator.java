@@ -10,9 +10,9 @@ public class TechnicalIndicator {
 
     public TechnicalIndicator() { }
 
-    public TechnicalIndicator(String ticker, String type, double value, LocalDate date) {
+    public TechnicalIndicator(String ticker, double value, LocalDate date) {
         this.ticker = ticker;
-        this.type = type;
+        this.type = "SMA";
         this.value = value;
         this.date = date;
     }

@@ -25,7 +25,6 @@ public class TechnicalIndicatorMapper {
         JSONObject results = object.getJSONObject("results");
 
         String ticker = extractTicker(results);
-        String type = extractType(results);
 
         double value = 0.0;
         long timestamp = 0;
@@ -39,16 +38,11 @@ public class TechnicalIndicatorMapper {
 
         LocalDate date = Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDate();
 
-        return new TechnicalIndicator(ticker, type, value, date);
+        return new TechnicalIndicator(ticker, value, date);
     }
 
     private static String extractTicker(JSONObject results) {
         String url = results.getJSONObject("underlying").getString("url");
         return url.split("/")[6];
-    }
-
-    private static String extractType(JSONObject results) {
-        String url = results.getJSONObject("underlying").getString("url");
-        return url.split("/")[5];
     }
 }
