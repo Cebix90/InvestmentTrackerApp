@@ -1,4 +1,4 @@
-package com.cebix.investmenttrackerapp.mapers;
+package com.cebix.investmenttrackerapp.mappers;
 
 import com.cebix.investmenttrackerapp.datamodel.ExchangeStatus;
 import org.json.JSONArray;

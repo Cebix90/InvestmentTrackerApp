@@ -1,4 +1,4 @@
-package com.cebix.investmenttrackerapp.mapers;
+package com.cebix.investmenttrackerapp.mappers;
 
 import com.cebix.investmenttrackerapp.datamodel.TechnicalIndicator;
 import org.json.JSONArray;
