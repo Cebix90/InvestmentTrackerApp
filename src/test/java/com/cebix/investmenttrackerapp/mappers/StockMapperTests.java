@@ -29,31 +29,25 @@ public class StockMapperTests {
     public void testMapJSONToStock_WithIncorrectJSON() {
         String incorrectJSON = "{ ticker: \"AAPL\", }";
 
-        assertThrows(JSONException.class, () -> {
-            StockMapper.mapJSONToStock(incorrectJSON);
-        });
+        assertThrows(JSONException.class, () -> StockMapper.mapJSONToStock(incorrectJSON));
     }
 
     @Test
     public void testMapJSONToStock_WithEmptyJSON() {
         String emptyJSON = "{}";
 
-        assertThrows(JSONException.class, () -> {
-            StockMapper.mapJSONToStock(emptyJSON);
-        });
+        assertThrows(JSONException.class, () -> StockMapper.mapJSONToStock(emptyJSON));
     }
 
     @Test
     public void testMapJSONToStock_WithoutRequiredTickerField() {
         String jsonWithoutRequiredFields = "{ \"results\": [{ \"c\": 130.15, \"t\": 1673240400000 }] }";
 
-        assertThrows(JSONException.class, () -> {
-            StockMapper.mapJSONToStock(jsonWithoutRequiredFields);
-        });
+        assertThrows(JSONException.class, () -> StockMapper.mapJSONToStock(jsonWithoutRequiredFields));
     }
 
     @Test
-    public void testMapJSONToStock_WithJSONArray() throws IOException {
+    public void testMapJSONToStock_WithJSONArray() {
         String stockJSONArray = "[{\"ticker\": \"AAPL\", \"results\": [{\"c\": 130.15, \"t\": 1673240400000}]}]";
 
         Stock stock = StockMapper.mapJSONToStock(stockJSONArray);

@@ -26,7 +26,13 @@ public class ExchangeStatusMapper {
         List<ExchangeStatus> exchangeStatuses = new ArrayList<>();
 
         for (String key : exchanges.keySet()) {
-            boolean isOpen = exchanges.getString(key).equalsIgnoreCase("open");
+            String value = exchanges.getString(key).toLowerCase();
+
+            if (!value.equals("open") && !value.equals("extended-hours") && !value.equals("closed")) {
+                throw new JSONException("Invalid value: " + value);
+            }
+
+            boolean isOpen = value.equals("open") || value.equals("extended-hours");
             exchangeStatuses.add(new ExchangeStatus(key, isOpen));
         }
 
