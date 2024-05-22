@@ -6,9 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 
 public class StockMapper {
     public static Stock mapJSONToStock(String stockJSON) {
@@ -33,8 +31,7 @@ public class StockMapper {
             timestamp = resultObject.getLong("t");
         }
 
-        Instant instant = Instant.ofEpochMilli(timestamp);
-        LocalDate date = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate date = MapperHelper.convertTimestampToLocalDate(timestamp);
 
         return new Stock(ticker, value, date);
     }

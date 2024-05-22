@@ -6,9 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 
 public class TechnicalIndicatorMapper {
     public static TechnicalIndicator mapJSONToTechnicalIndicator(String technicalIndicatorJSON) {
@@ -36,7 +34,7 @@ public class TechnicalIndicatorMapper {
             timestamp = valueObject.getLong("timestamp");
         }
 
-        LocalDate date = Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate date = MapperHelper.convertTimestampToLocalDate(timestamp);
 
         return new TechnicalIndicator(ticker, value, date);
     }
