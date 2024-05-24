@@ -7,9 +7,6 @@ public class Stock {
     private double value;
     private LocalDate date;
 
-    public Stock() {
-    }
-
     public Stock(String ticker, double value, LocalDate date) {
         this.ticker = ticker;
         this.value = value;

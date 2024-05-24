@@ -8,11 +8,9 @@ public class TechnicalIndicator {
     private double value;
     private LocalDate date;
 
-    public TechnicalIndicator() { }
-
     public TechnicalIndicator(String ticker, double value, LocalDate date) {
         this.ticker = ticker;
-        this.type = "SMA";
+        this.type = "dummy";
         this.value = value;
         this.date = date;
     }

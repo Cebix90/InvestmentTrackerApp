@@ -4,9 +4,6 @@ public class ExchangeStatus {
     private String exchange;
     private boolean isOpen;
 
-    public ExchangeStatus() {
-    }
-
     public ExchangeStatus(String exchange, boolean isOpen) {
         this.exchange = exchange;
         this.isOpen = isOpen;
