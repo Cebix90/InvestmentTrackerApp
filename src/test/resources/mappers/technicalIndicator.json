@@ -1,0 +1,15 @@
+{
+  "results": {
+    "underlying": {
+      "url": "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/1671598800000/1693612800000?limit=235&sort=desc"
+    },
+    "values": [
+      {
+        "timestamp": 1693540800000,
+        "value": 186.7087000000001
+      }
+    ]
+  },
+  "status": "OK",
+  "request_id": "f33e0619593e6d84a77e1be539508d2a"
+}

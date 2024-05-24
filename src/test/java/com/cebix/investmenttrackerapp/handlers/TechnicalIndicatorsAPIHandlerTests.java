@@ -1,6 +1,5 @@
-package com.cebix.investmenttrackerapp;
+package com.cebix.investmenttrackerapp.handlers;
 
-import com.cebix.investmenttrackerapp.handlers.TechnicalIndicatorsAPIHandler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Nested;
