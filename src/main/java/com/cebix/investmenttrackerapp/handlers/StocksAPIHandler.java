@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 @Component
 public class StocksAPIHandler {
@@ -25,11 +26,15 @@ public class StocksAPIHandler {
             return Mono.error(new RuntimeException("Ticker cannot be empty"));
         }
 
-        LocalDate fromDate = LocalDate.parse(from);
-        LocalDate toDate = LocalDate.parse(to);
+        try {
+            LocalDate fromDate = LocalDate.parse(from);
+            LocalDate toDate = LocalDate.parse(to);
 
-        if (fromDate.isAfter(toDate)) {
-            return Mono.error(new RuntimeException("The parameter 'to' cannot be a time that occurs before 'from'"));
+            if (fromDate.isAfter(toDate)) {
+                return Mono.error(new RuntimeException("The parameter 'to' cannot be a time that occurs before 'from'"));
+            }
+        } catch (DateTimeParseException e) {
+            return Mono.error(new RuntimeException("Invalid date format"));
         }
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(STOCKS_URL + "{ticker}/range/{multiplier}/{timespan}/{from}/{to}")
