@@ -2,6 +2,10 @@
 package com.cebix.investmenttrackerapp.controllers;
 
 import com.cebix.investmenttrackerapp.datamodel.Stock;
+import com.cebix.investmenttrackerapp.exceptions.DateOrderException;
+import com.cebix.investmenttrackerapp.exceptions.FutureDateException;
+import com.cebix.investmenttrackerapp.exceptions.InvalidDateException;
+import com.cebix.investmenttrackerapp.exceptions.InvalidTickerException;
 import com.cebix.investmenttrackerapp.services.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,8 +31,10 @@ public class SearchStockController {
         try {
             Stock stock = stockService.getStockData(ticker, date);
             model.addAttribute("stock", stock);
+        }  catch (InvalidTickerException | InvalidDateException | DateOrderException | FutureDateException e) {
+            model.addAttribute("error", e.getMessage());
         } catch (Exception e) {
-            model.addAttribute("error", "Incorrect data. Please try again with a different ticker or date.");
+            model.addAttribute("error", "An unexpected error occurred. Please try again.");
         }
 
         return "searchStock";
