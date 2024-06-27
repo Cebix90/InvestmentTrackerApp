@@ -1,7 +1,8 @@
 package com.cebix.investmenttrackerapp.exceptions;
 
 public class FutureDateException extends RuntimeException {
-    public FutureDateException(String message) {
-        super(message);
+    @Override
+    public String getMessage() {
+        return "You can only select a date at least one day in the past.";
     }
 }
