@@ -24,7 +24,7 @@ public class StocksAPIHandlerTests {
         String to = "2024-12-31";
         int limit = 120;
 
-        StepVerifier.create(stocksAPIHandler.getStockData(stockTicker, multiplier, timespan, from, to, limit))
+        StepVerifier.create(stocksAPIHandler.getStockDataFromApi(stockTicker, multiplier, timespan, from, to, limit))
                 .expectNextMatches(response -> {
                     try {
                         ObjectMapper objectMapper = new ObjectMapper();
@@ -49,7 +49,7 @@ public class StocksAPIHandlerTests {
         String to = "2023-01-09";
         int limit = 120;
 
-        StepVerifier.create(stocksAPIHandler.getStockData(stockTicker, multiplier, timespan, from, to, limit))
+        StepVerifier.create(stocksAPIHandler.getStockDataFromApi(stockTicker, multiplier, timespan, from, to, limit))
                 .expectErrorMatches(throwable -> throwable instanceof RuntimeException && throwable.getMessage().contains("Ticker cannot be empty"))
                 .verify();
     }
@@ -63,7 +63,7 @@ public class StocksAPIHandlerTests {
         String to = "2023-01-09";
         int limit = 120;
 
-        StepVerifier.create(stocksAPIHandler.getStockData(stockTicker, multiplier, timespan, from, to, limit))
+        StepVerifier.create(stocksAPIHandler.getStockDataFromApi(stockTicker, multiplier, timespan, from, to, limit))
                 .expectErrorMatches(throwable -> throwable instanceof RuntimeException && throwable.getMessage().contains("Ticker cannot be empty"))
                 .verify();
     }
@@ -77,7 +77,7 @@ public class StocksAPIHandlerTests {
         String to = "2023-01-09";
         int limit = 120;
 
-        StepVerifier.create(stocksAPIHandler.getStockData(stockTicker, multiplier, timespan, from, to, limit))
+        StepVerifier.create(stocksAPIHandler.getStockDataFromApi(stockTicker, multiplier, timespan, from, to, limit))
                 .expectErrorMatches(throwable -> throwable instanceof RuntimeException && throwable.getMessage().contains("The parameter 'to' cannot be a time that occurs before 'from'"))
                 .verify();
     }
@@ -92,7 +92,7 @@ public class StocksAPIHandlerTests {
         String to = tomorrow.toString();
         int limit = 120;
 
-        StepVerifier.create(stocksAPIHandler.getStockData(stockTicker, multiplier, timespan, from, to, limit))
+        StepVerifier.create(stocksAPIHandler.getStockDataFromApi(stockTicker, multiplier, timespan, from, to, limit))
                 .expectErrorMatches(throwable -> throwable instanceof RuntimeException &&
                         throwable.getMessage().contains("Error occurred with status code: 403"))
                 .verify();
