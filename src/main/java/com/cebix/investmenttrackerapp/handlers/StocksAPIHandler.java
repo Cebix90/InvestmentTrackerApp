@@ -8,7 +8,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.time.LocalDate;
 
 @Component
 public class StocksAPIHandler {
@@ -21,17 +20,6 @@ public class StocksAPIHandler {
     }
 
     public Mono<String> getStockData(String stockTicker, String multiplier, String timespan, String from, String to, int limit) {
-        if (stockTicker == null || stockTicker.isEmpty()) {
-            return Mono.error(new RuntimeException("Ticker cannot be empty"));
-        }
-
-        LocalDate fromDate = LocalDate.parse(from);
-        LocalDate toDate = LocalDate.parse(to);
-
-        if (fromDate.isAfter(toDate)) {
-            return Mono.error(new RuntimeException("The parameter 'to' cannot be a time that occurs before 'from'"));
-        }
-
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(STOCKS_URL + "{ticker}/range/{multiplier}/{timespan}/{from}/{to}")
                 .queryParam("adjusted", true)
                 .queryParam("sort", "asc")
