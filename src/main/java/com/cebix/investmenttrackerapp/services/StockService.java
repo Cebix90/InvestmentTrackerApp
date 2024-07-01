@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 
 @Service
 public class StockService {
@@ -22,7 +21,7 @@ public class StockService {
         this.stocksAPIHandler = stocksAPIHandler;
     }
 
-    public Stock getStockData(String ticker, String date) {
+    public Stock retrieveStockData(String ticker, String date) {
         if (ticker == null || ticker.isEmpty()) {
             throw new InvalidTickerException();
         }
@@ -31,16 +30,12 @@ public class StockService {
         if (date == null || date.isEmpty()) {
             selectedDate = getLastWorkingDay();
         } else {
-            try {
-                selectedDate = LocalDate.parse(date);
-            } catch (DateTimeParseException e) {
-                throw new DateTimeParseException("Invalid date format: " + e.getParsedString(), e.getParsedString(), e.getErrorIndex());
-            }
+            selectedDate = LocalDate.parse(date);
         }
 
         String selectedDateString = selectedDate.toString();
 
-        String jsonData = stocksAPIHandler.getStockDataFromApi(ticker, "1", "day", selectedDateString, selectedDateString, 1).block();
+        String jsonData = stocksAPIHandler.getStockData(ticker, "1", "day", selectedDateString, selectedDateString, 1).block();
 
         JSONObject jsonObject = new JSONObject(jsonData);
         int queryCount = jsonObject.getInt("queryCount");
@@ -56,8 +51,10 @@ public class StockService {
     private LocalDate getLastWorkingDay() {
         LocalDate date = LocalDate.now().minusDays(1);
 
-        while (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+        if(date.getDayOfWeek() == DayOfWeek.SATURDAY) {
             date = date.minusDays(1);
+        } else if(date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+             date = date.minusDays(2);
         }
 
         return date;

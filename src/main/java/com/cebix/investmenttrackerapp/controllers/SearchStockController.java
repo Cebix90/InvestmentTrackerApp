@@ -29,7 +29,7 @@ public class SearchStockController {
                                @RequestParam(required = false) String date,
                                Model model) {
         try {
-            Stock stock = stockService.getStockData(ticker, date);
+            Stock stock = stockService.retrieveStockData(ticker, date);
             model.addAttribute("stock", stock);
         }  catch (InvalidTickerException | FutureDateException | DateTimeParseException e) {
             model.addAttribute("error", e.getMessage());

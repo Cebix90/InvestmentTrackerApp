@@ -19,7 +19,7 @@ public class StocksAPIHandler {
         this.webClient = WebClient.builder().baseUrl(STOCKS_URL).build();
     }
 
-    public Mono<String> getStockDataFromApi(String stockTicker, String multiplier, String timespan, String from, String to, int limit) {
+    public Mono<String> getStockData(String stockTicker, String multiplier, String timespan, String from, String to, int limit) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(STOCKS_URL + "{ticker}/range/{multiplier}/{timespan}/{from}/{to}")
                 .queryParam("adjusted", true)
                 .queryParam("sort", "asc")
