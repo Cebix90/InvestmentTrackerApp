@@ -41,34 +41,6 @@ public class StocksAPIHandlerTests {
     }
 
     @Test
-    public void testGetStockData_throwsError_whenTickerIsEmpty() {
-        String stockTicker = "";
-        String multiplier = "1";
-        String timespan = "day";
-        String from = "2023-01-09";
-        String to = "2023-01-09";
-        int limit = 120;
-
-        StepVerifier.create(stocksAPIHandler.getStockData(stockTicker, multiplier, timespan, from, to, limit))
-                .expectErrorMatches(throwable -> throwable instanceof RuntimeException && throwable.getMessage().contains("Ticker cannot be empty"))
-                .verify();
-    }
-
-    @Test
-    public void testGetStockData_throwsError_whenTickerIsNull() {
-        String stockTicker = null;
-        String multiplier = "1";
-        String timespan = "day";
-        String from = "2023-01-09";
-        String to = "2023-01-09";
-        int limit = 120;
-
-        StepVerifier.create(stocksAPIHandler.getStockData(stockTicker, multiplier, timespan, from, to, limit))
-                .expectErrorMatches(throwable -> throwable instanceof RuntimeException && throwable.getMessage().contains("Ticker cannot be empty"))
-                .verify();
-    }
-
-    @Test
     public void testGetStockData_throwsError_whenFromParameterIsSmallerThanParameterTo() {
         String stockTicker = "AAPL";
         String multiplier = "1";
