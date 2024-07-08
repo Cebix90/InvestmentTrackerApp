@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import java.util.Objects;
 
 @Entity
-public class User {
+public class CustomUser {
     @Id
     @GeneratedValue
     private long id;
@@ -52,8 +52,8 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        User user = (User) o;
-        return id == user.id && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(portfolio, user.portfolio);
+        CustomUser customUser = (CustomUser) o;
+        return id == customUser.id && Objects.equals(email, customUser.email) && Objects.equals(password, customUser.password) && Objects.equals(portfolio, customUser.portfolio);
     }
 
     @Override
