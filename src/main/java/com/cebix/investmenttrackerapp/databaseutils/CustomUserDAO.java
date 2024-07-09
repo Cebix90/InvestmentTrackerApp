@@ -8,7 +8,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class CustomUserDAO {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SessionFactory sessionFactory = CustomUserSessionFactory.getCustomUserSessionFactory();
