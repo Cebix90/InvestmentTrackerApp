@@ -1,7 +1,10 @@
 package com.cebix.investmenttrackerapp.databaseutils;
 
 import com.cebix.investmenttrackerapp.datamodel.CustomUser;
+import com.cebix.investmenttrackerapp.exceptions.UserExistsException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -10,13 +13,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@ExtendWith(MockitoExtension.class)
 public class CustomUserDAOTests {
 
     @Autowired
     private CustomUserDAO customUserDAO;
 
     @Test
-    public void testSaveUser() {
+    public void testSaveUser_whenUserNotExists_thenCorrect() {
         CustomUser newUser = new CustomUser();
         newUser.setEmail("test@example.com");
         newUser.setPassword("password123");
@@ -32,7 +36,19 @@ public class CustomUserDAOTests {
     }
 
     @Test
-    public void testFindUserByEmail() {
+    public void testSaveUser_whenUserExists_thenThrowsException() {
+        CustomUser newUser = new CustomUser();
+        newUser.setEmail("test@example.com");
+        newUser.setPassword("password123");
+        newUser.setPortfolio("Test Portfolio");
+
+        customUserDAO.saveUser(newUser);
+
+        assertThrows(UserExistsException.class, () -> customUserDAO.saveUser(newUser));
+    }
+
+    @Test
+    public void testFindUserByEmail_whenUserFound() {
         CustomUser newUser = new CustomUser();
         newUser.setEmail("testfind@example.com");
         newUser.setPassword("password123");
@@ -46,7 +62,7 @@ public class CustomUserDAOTests {
     }
 
     @Test
-    public void testUpdateUser() {
+    public void testUpdateUser_whenUserExists_thenCorrect() {
         CustomUser newUser = new CustomUser();
         newUser.setEmail("testupdate@example.com");
         newUser.setPassword("password123");
@@ -67,7 +83,7 @@ public class CustomUserDAOTests {
     }
 
     @Test
-    public void testDeleteUser() {
+    public void testDeleteUser_whenUserExists_thenCorrect() {
         CustomUser newUser = new CustomUser();
         newUser.setEmail("testdelete@example.com");
         newUser.setPassword("password123");
