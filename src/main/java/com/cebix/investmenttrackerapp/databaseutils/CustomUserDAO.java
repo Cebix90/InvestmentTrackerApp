@@ -17,91 +17,53 @@ public class CustomUserDAO {
     private final SessionFactory sessionFactory = CustomUserSessionFactory.getCustomUserSessionFactory();
 
     public void saveUser(CustomUser customUser) {
-        Session session = null;
-        Transaction transaction = null;
-        try {
+        try (Session session = sessionFactory.openSession()) {
             if(!userExists(customUser)) {
-                session = sessionFactory.openSession();
-                transaction = session.beginTransaction();
+                Transaction transaction = session.beginTransaction();
                 customUser.setPassword(passwordEncoder.encode(customUser.getPassword()));
                 session.merge(customUser);
                 transaction.commit();
             } else {
                 throw new UserExistsException();
             }
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
-        } finally {
-            if (session != null) {
-                session.close();
-            }
         }
     }
 
     public CustomUser findUserByEmail(String email) {
-        Session session = null;
-        try {
-            session = sessionFactory.openSession();
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email must not be null or empty");
+        }
+
+        try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
             CriteriaQuery<CustomUser> userQuery = criteriaBuilder.createQuery(CustomUser.class);
             Root<CustomUser> userRoot = userQuery.from(CustomUser.class);
             userQuery.select(userRoot).where(criteriaBuilder.equal(userRoot.get("email"), email));
             CustomUser customUser = session.createQuery(userQuery).getSingleResultOrNull();
             return customUser;
-        } finally {
-            if (session != null) {
-                session.close();
-            }
         }
     }
 
     public void deleteUser(String customUserEmail) {
-        Session session = null;
-        Transaction transaction = null;
-        try {
-            session = sessionFactory.openSession();
-            transaction = session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
             CustomUser customUserToDelete = findUserByEmail(customUserEmail);
             if (customUserToDelete != null) {
                 session.remove(customUserToDelete);
                 transaction.commit();
             }
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
-        } finally {
-            if (session != null) {
-                session.close();
-            }
         }
     }
 
     public void updateUser(CustomUser customUser) {
-        Session session = null;
-        Transaction transaction = null;
-        try {
-            session = sessionFactory.openSession();
-            transaction = session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
             CustomUser customUserToUpdate = findUserByEmail(customUser.getEmail());
             if (customUserToUpdate != null) {
                 customUserToUpdate.setPassword(passwordEncoder.encode(customUser.getPassword()));
                 customUserToUpdate.setPortfolio(customUser.getPortfolio());
                 session.merge(customUserToUpdate);
                 transaction.commit();
-            }
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
-        } finally {
-            if (session != null) {
-                session.close();
             }
         }
     }
