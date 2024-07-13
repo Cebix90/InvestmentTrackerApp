@@ -3,21 +3,11 @@ package com.cebix.investmenttrackerapp.databaseutils;
 import com.cebix.investmenttrackerapp.datamodel.CustomUser;
 import com.cebix.investmenttrackerapp.exceptions.UserExistsException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@ExtendWith(MockitoExtension.class)
 public class CustomUserDAOTests {
-
-    @Autowired
-    private CustomUserDAO customUserDAO;
+    private final CustomUserDAO customUserDAO = new CustomUserDAO();
 
     @Test
     public void testSaveUser_whenUserNotExists_thenCorrect() {
@@ -59,6 +49,20 @@ public class CustomUserDAOTests {
 
         assertNotNull(foundUser);
         assertEquals("testfind@example.com", foundUser.getEmail());
+    }
+
+    @Test
+    public void testFindUserByEmail_whenEmailIsEmpty_thenThrowsException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> customUserDAO.findUserByEmail(""));
+
+        assertEquals("Email must not be null or empty", exception.getMessage());
+    }
+
+    @Test
+    public void testFindUserByEmail_whenEmailIsNull_thenThrowsException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> customUserDAO.findUserByEmail(null));
+
+        assertEquals("Email must not be null or empty", exception.getMessage());
     }
 
     @Test
