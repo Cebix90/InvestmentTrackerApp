@@ -1,7 +1,8 @@
 package com.cebix.investmenttrackerapp.databaseutils;
 
 import com.cebix.investmenttrackerapp.datamodel.CustomUser;
-import com.cebix.investmenttrackerapp.exceptions.UserExistsException;
+import com.cebix.investmenttrackerapp.exceptions.UserAlreadyExistsException;
+import com.cebix.investmenttrackerapp.exceptions.UserNotFoundException;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -20,8 +21,6 @@ public class CustomUserDAO {
     private final SessionFactory sessionFactory = CustomUserSessionFactory.getCustomUserSessionFactory();
 
     public void saveUser(CustomUser customUser) {
-        validateCustomUser(customUser);
-
         try (Session session = sessionFactory.openSession()) {
             if(!userExists(customUser)) {
                 Transaction transaction = session.beginTransaction();
@@ -29,7 +28,7 @@ public class CustomUserDAO {
                 session.merge(customUser);
                 transaction.commit();
             } else {
-                throw new UserExistsException();
+                throw new UserAlreadyExistsException();
             }
         }
     }
@@ -56,6 +55,8 @@ public class CustomUserDAO {
             if (customUserToDelete != null) {
                 session.remove(customUserToDelete);
                 transaction.commit();
+            } else {
+                throw new UserNotFoundException();
             }
         }
     }
@@ -86,17 +87,8 @@ public class CustomUserDAO {
                 throw new NoResultException("User not found with email: " + email);
             }
         } catch (IllegalArgumentException | NoResultException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
-    }
-
-    private void validateCustomUser(CustomUser customUser) {
-        if (customUser == null) {
-            throw new IllegalArgumentException("User cannot be null.");
-        }
-        validateEmail(customUser.getEmail());
-        validatePassword(customUser.getPassword());
-        validatePortfolio(customUser.getPortfolio());
     }
 
     private void validateEmail(String email) {
