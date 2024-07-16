@@ -3,7 +3,6 @@ package com.cebix.investmenttrackerapp.databaseutils;
 import com.cebix.investmenttrackerapp.datamodel.CustomUser;
 import com.cebix.investmenttrackerapp.exceptions.UserAlreadyExistsException;
 import com.cebix.investmenttrackerapp.exceptions.UserNotFoundException;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -11,11 +10,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Repository;
 
 import java.util.function.Consumer;
 
-@Repository
 public class CustomUserDAO {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SessionFactory sessionFactory = CustomUserSessionFactory.getCustomUserSessionFactory();
@@ -61,33 +58,34 @@ public class CustomUserDAO {
         }
     }
 
-    public void updateUserEmail(String currentEmail, String newEmail) {
-        updateUserField(currentEmail, user -> user.setEmail(newEmail), this::validateEmail, newEmail);
+    public CustomUser updateUserEmail(String currentEmail, String newEmail) {
+        return updateUserField(currentEmail, user -> user.setEmail(newEmail), this::validateEmail, newEmail);
     }
 
-    public void updateUserPassword(String email, String newPassword) {
-        updateUserField(email, user -> user.setPassword(passwordEncoder.encode(newPassword)), this::validatePassword, newPassword);
+    public CustomUser updateUserPassword(String email, String newPassword) {
+        return updateUserField(email, user -> user.setPassword(passwordEncoder.encode(newPassword)), this::validatePassword, newPassword);
     }
 
-    public void updateUserPortfolio(String email, String newPortfolio) {
-        updateUserField(email, user -> user.setPortfolio(newPortfolio), this::validatePortfolio, newPortfolio);
+    public CustomUser updateUserPortfolio(String email, String newPortfolio) {
+        return updateUserField(email, user -> user.setPortfolio(newPortfolio), this::validatePortfolio, newPortfolio);
     }
 
-    private <T> void updateUserField(String email, Consumer<CustomUser> fieldUpdater, Consumer<T> validator, T value) {
+    private <T> CustomUser updateUserField(String email, Consumer<CustomUser> fieldUpdater, Consumer<T> validator, T value) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            CustomUser user = findUserByEmail(email);
+            CustomUser customUserToUpdate = findUserByEmail(email);
 
-            if (user != null) {
+            if (customUserToUpdate != null) {
                 validator.accept(value);
-                fieldUpdater.accept(user);
-                session.merge(user);
+                fieldUpdater.accept(customUserToUpdate);
+                session.merge(customUserToUpdate);
                 transaction.commit();
+                return customUserToUpdate;
             } else {
-                throw new NoResultException("User not found with email: " + email);
+                throw new UserNotFoundException();
             }
-        } catch (IllegalArgumentException | NoResultException e) {
-            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 
