@@ -15,7 +15,11 @@ import java.util.function.Consumer;
 
 public class CustomUserDAO {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final SessionFactory sessionFactory = CustomUserSessionFactory.getCustomUserSessionFactory();
+    private final SessionFactory sessionFactory;
+
+    public CustomUserDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
     public void saveUser(CustomUser customUser) {
         try (Session session = sessionFactory.openSession()) {
