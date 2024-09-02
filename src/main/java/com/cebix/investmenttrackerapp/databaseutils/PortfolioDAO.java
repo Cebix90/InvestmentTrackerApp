@@ -17,35 +17,38 @@ public class PortfolioDAO {
     }
 
     public void savePortfolio(Portfolio portfolio) {
+        if (portfolio.getUser() == null) {
+            throw new IllegalArgumentException("Portfolio must be associated with a user.");
+        }
+
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.merge(portfolio);
             transaction.commit();
-
         }
     }
 
-    public Portfolio findPortfolioByUserEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email must not be null or empty");
+    public Portfolio findPortfolioByUserId(Long customUserId) {
+        if (customUserId == null) {
+            throw new UserNotFoundException();
         }
 
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
             CriteriaQuery<Portfolio> portfolioCriteriaQuery = criteriaBuilder.createQuery(Portfolio.class);
             Root<Portfolio> portfolioRoot = portfolioCriteriaQuery.from(Portfolio.class);
-            portfolioCriteriaQuery.select(portfolioRoot).where(criteriaBuilder.equal(portfolioRoot.get("email"), email));
+            portfolioCriteriaQuery.select(portfolioRoot).where(criteriaBuilder.equal(portfolioRoot.get("user").get("id"), customUserId));
             Portfolio portfolio = session.createQuery(portfolioCriteriaQuery).getSingleResultOrNull();
             return portfolio;
         }
     }
 
-    public void deletePortfolio(String portfolioCustomUserEmail) {
+    public void deletePortfolio(Long customUserId) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            Portfolio customUserToDelete = findPortfolioByUserEmail(portfolioCustomUserEmail);
-            if (customUserToDelete != null) {
-                session.remove(customUserToDelete);
+            Portfolio portfolioToDelete = findPortfolioByUserId(customUserId);
+            if (portfolioToDelete != null) {
+                session.remove(portfolioToDelete);
                 transaction.commit();
             } else {
                 throw new UserNotFoundException();
