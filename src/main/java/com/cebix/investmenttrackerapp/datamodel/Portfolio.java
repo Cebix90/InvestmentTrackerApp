@@ -9,7 +9,8 @@ import java.util.Map;
 public class Portfolio {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
+
     @OneToOne
     private CustomUser user;
 

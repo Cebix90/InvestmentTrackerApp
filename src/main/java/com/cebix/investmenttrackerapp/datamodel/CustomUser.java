@@ -10,7 +10,7 @@ import java.util.Objects;
 public class CustomUser {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
     private String email;
     private String password;
     private String portfolio;
@@ -19,7 +19,7 @@ public class CustomUser {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
