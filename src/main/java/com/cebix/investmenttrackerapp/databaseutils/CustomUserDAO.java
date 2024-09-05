@@ -26,7 +26,8 @@ public class CustomUserDAO {
             if(!userExists(customUser)) {
                 Transaction transaction = session.beginTransaction();
                 customUser.setPassword(passwordEncoder.encode(customUser.getPassword()));
-                session.merge(customUser);
+                session.persist(customUser);
+                session.flush();
                 transaction.commit();
             } else {
                 throw new UserAlreadyExistsException();
@@ -44,8 +45,7 @@ public class CustomUserDAO {
             CriteriaQuery<CustomUser> userQuery = criteriaBuilder.createQuery(CustomUser.class);
             Root<CustomUser> userRoot = userQuery.from(CustomUser.class);
             userQuery.select(userRoot).where(criteriaBuilder.equal(userRoot.get("email"), email));
-            CustomUser customUser = session.createQuery(userQuery).getSingleResultOrNull();
-            return customUser;
+            return session.createQuery(userQuery).getSingleResultOrNull();
         }
     }
 

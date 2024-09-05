@@ -2,6 +2,7 @@ package com.cebix.investmenttrackerapp.datamodel;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.util.Objects;
@@ -9,13 +10,13 @@ import java.util.Objects;
 @Entity
 public class CustomUser {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String email;
     private String password;
     private String portfolio;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -53,7 +54,7 @@ public class CustomUser {
         if (o == null || getClass() != o.getClass()) return false;
 
         CustomUser customUser = (CustomUser) o;
-        return id == customUser.id && Objects.equals(email, customUser.email) && Objects.equals(password, customUser.password) && Objects.equals(portfolio, customUser.portfolio);
+        return Objects.equals(id, customUser.id) && Objects.equals(email, customUser.email) && Objects.equals(password, customUser.password) && Objects.equals(portfolio, customUser.portfolio);
     }
 
     @Override
