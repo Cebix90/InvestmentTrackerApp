@@ -1,11 +1,11 @@
 package com.cebix.investmenttrackerapp.databaseutils;
 
-import com.cebix.investmenttrackerapp.datamodel.CustomUser;
 import com.cebix.investmenttrackerapp.datamodel.Portfolio;
 import com.cebix.investmenttrackerapp.exceptions.UserNotFoundException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -44,6 +44,12 @@ public class PortfolioDAO {
             Root<Portfolio> portfolioRoot = portfolioCriteriaQuery.from(Portfolio.class);
             portfolioCriteriaQuery.select(portfolioRoot).where(criteriaBuilder.equal(portfolioRoot.get("user").get("id"), customUserId));
             Portfolio portfolio = session.createQuery(portfolioCriteriaQuery).getSingleResultOrNull();
+
+            if (portfolio != null) {
+                Hibernate.initialize(portfolio.getStocks());
+                Hibernate.initialize(portfolio.getHistoricalValue());
+            }
+
             return portfolio;
         }
     }

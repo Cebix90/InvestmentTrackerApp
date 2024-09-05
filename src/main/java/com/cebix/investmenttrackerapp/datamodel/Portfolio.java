@@ -4,14 +4,15 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Objects;
 
 @Entity
 public class Portfolio {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(cascade=CascadeType.ALL)
     private CustomUser user;
 
     @ElementCollection
@@ -38,11 +39,11 @@ public class Portfolio {
         this.historicalValue = historicalValue;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -85,7 +86,7 @@ public class Portfolio {
 
         Portfolio portfolio = (Portfolio) o;
 
-        if (id != portfolio.id) return false;
+        if (!Objects.equals(id, portfolio.id)) return false;
         if (Double.compare(portfolio.overallValue, overallValue) != 0) return false;
         if (!user.equals(portfolio.user)) return false;
         if (!stocks.equals(portfolio.stocks)) return false;
@@ -95,12 +96,10 @@ public class Portfolio {
     @Override
     public int hashCode() {
         int result;
-        long temp;
-        result = (int) (id ^ (id >>> 32));
+        result = id.hashCode();
         result = 31 * result + user.hashCode();
         result = 31 * result + stocks.hashCode();
-        temp = Double.doubleToLongBits(overallValue);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + Double.hashCode(overallValue);
         result = 31 * result + historicalValue.hashCode();
         return result;
     }
