@@ -1,5 +1,6 @@
 package com.cebix.investmenttrackerapp.databaseutils;
 
+import com.cebix.investmenttrackerapp.datamodel.CustomUser;
 import com.cebix.investmenttrackerapp.datamodel.Portfolio;
 import com.cebix.investmenttrackerapp.exceptions.UserNotFoundException;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -28,7 +29,13 @@ public class PortfolioDAO {
 
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.merge(portfolio);
+
+            if (portfolio.getUser() != null) {
+                CustomUser managedUser = session.merge(portfolio.getUser());
+                portfolio.setUser(managedUser);
+            }
+
+            session.persist(portfolio);
             transaction.commit();
         }
     }
