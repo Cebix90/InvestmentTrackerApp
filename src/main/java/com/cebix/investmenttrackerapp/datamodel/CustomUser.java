@@ -1,9 +1,6 @@
 package com.cebix.investmenttrackerapp.datamodel;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
@@ -14,7 +11,8 @@ public class CustomUser {
     private Long id;
     private String email;
     private String password;
-    private String portfolio;
+    @OneToOne()
+    private Portfolio portfolio;
 
     public Long getId() {
         return id;
@@ -40,11 +38,11 @@ public class CustomUser {
         this.password = password;
     }
 
-    public String getPortfolio() {
+    public Portfolio getPortfolio() {
         return portfolio;
     }
 
-    public void setPortfolio(String portfolio) {
+    public void setPortfolio(Portfolio portfolio) {
         this.portfolio = portfolio;
     }
 
@@ -53,13 +51,13 @@ public class CustomUser {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CustomUser customUser = (CustomUser) o;
-        return Objects.equals(id, customUser.id) && Objects.equals(email, customUser.email) && Objects.equals(password, customUser.password) && Objects.equals(portfolio, customUser.portfolio);
+        CustomUser that = (CustomUser) o;
+        return Objects.equals(id, that.id) && Objects.equals(email, that.email) && Objects.equals(password, that.password) && Objects.equals(portfolio, that.portfolio);
     }
 
     @Override
     public int hashCode() {
-        int result = Long.hashCode(id);
+        int result = Objects.hashCode(id);
         result = 31 * result + Objects.hashCode(email);
         result = 31 * result + Objects.hashCode(password);
         result = 31 * result + Objects.hashCode(portfolio);

@@ -1,6 +1,7 @@
 package com.cebix.investmenttrackerapp.databaseutils;
 
 import com.cebix.investmenttrackerapp.datamodel.CustomUser;
+import com.cebix.investmenttrackerapp.datamodel.Portfolio;
 import com.cebix.investmenttrackerapp.exceptions.UserAlreadyExistsException;
 import com.cebix.investmenttrackerapp.exceptions.UserNotFoundException;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -12,6 +13,7 @@ import org.hibernate.Transaction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class CustomUserDAO {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -63,24 +65,26 @@ public class CustomUserDAO {
     }
 
     public CustomUser updateUserEmail(String currentEmail, String newEmail) {
-        return updateUserField(currentEmail, user -> user.setEmail(newEmail), this::validateEmail, newEmail);
+        return updateUserField(currentEmail, user -> user.setEmail(newEmail), this::validateEmail, newEmail, "Email");
     }
 
     public CustomUser updateUserPassword(String email, String newPassword) {
-        return updateUserField(email, user -> user.setPassword(passwordEncoder.encode(newPassword)), this::validatePassword, newPassword);
+        return updateUserField(email, user -> user.setPassword(passwordEncoder.encode(newPassword)), this::validatePassword, newPassword, "Password");
     }
 
-    public CustomUser updateUserPortfolio(String email, String newPortfolio) {
-        return updateUserField(email, user -> user.setPortfolio(newPortfolio), this::validatePortfolio, newPortfolio);
+    public CustomUser updateUserPortfolio(String email, Portfolio newPortfolio) {
+        return updateUserField(email, user -> user.setPortfolio(newPortfolio), this::validatePortfolio, newPortfolio, "Portfolio");
     }
 
-    private <T> CustomUser updateUserField(String email, Consumer<CustomUser> fieldUpdater, Consumer<T> validator, T value) {
+    private <T> CustomUser updateUserField(String email, Consumer<CustomUser> fieldUpdater, Predicate<T> validator, T value, String fieldName) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             CustomUser customUserToUpdate = findUserByEmail(email);
 
             if (customUserToUpdate != null) {
-                validator.accept(value);
+                if (!validator.test(value)) {
+                    throw new IllegalArgumentException(getValidationErrorMessage(fieldName, value));
+                }
                 fieldUpdater.accept(customUserToUpdate);
                 session.merge(customUserToUpdate);
                 transaction.commit();
@@ -88,27 +92,31 @@ public class CustomUserDAO {
             } else {
                 throw new UserNotFoundException();
             }
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 
-    private void validateEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email must not be null or empty");
-        }
+    private boolean validateEmail(String email) {
+        return email != null && !email.trim().isEmpty();
     }
 
-    private void validatePassword(String password) {
-        if (password == null || password.trim().isEmpty()) {
-            throw new IllegalArgumentException("Password must not be null or empty");
-        }
+    private boolean validatePassword(String password) {
+        return password != null && !password.trim().isEmpty();
     }
 
-    private void validatePortfolio(String portfolio) {
-        if (portfolio == null || portfolio.trim().isEmpty()) {
-            throw new IllegalArgumentException("Portfolio must not be null or empty");
+    private boolean validatePortfolio(Portfolio portfolio) {
+        return portfolio != null;
+    }
+
+    private <T> String getValidationErrorMessage(String fieldName, T value) {
+        if (value instanceof String) {
+            if (value.equals("")) {
+                return fieldName + " cannot be empty.";
+            } else {
+                return fieldName + " cannot be null.";
+            }
         }
+
+        return fieldName + " cannot be null.";
     }
 
     private boolean userExists(CustomUser customUser) {
