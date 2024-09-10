@@ -10,9 +10,9 @@ import java.util.Objects;
 public class Portfolio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
-    @OneToOne(cascade=CascadeType.ALL)
+    @OneToOne()
     private CustomUser user;
 
     @ElementCollection
@@ -39,11 +39,11 @@ public class Portfolio {
         this.historicalValue = historicalValue;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -85,22 +85,16 @@ public class Portfolio {
         if (o == null || getClass() != o.getClass()) return false;
 
         Portfolio portfolio = (Portfolio) o;
-
-        if (!Objects.equals(id, portfolio.id)) return false;
-        if (Double.compare(portfolio.overallValue, overallValue) != 0) return false;
-        if (!user.equals(portfolio.user)) return false;
-        if (!stocks.equals(portfolio.stocks)) return false;
-        return historicalValue.equals(portfolio.historicalValue);
+        return id == portfolio.id && Double.compare(overallValue, portfolio.overallValue) == 0 && Objects.equals(user.getId(), portfolio.user.getId()) && Objects.equals(stocks, portfolio.stocks) && Objects.equals(historicalValue, portfolio.historicalValue);
     }
 
     @Override
     public int hashCode() {
-        int result;
-        result = id.hashCode();
-        result = 31 * result + user.hashCode();
-        result = 31 * result + stocks.hashCode();
+        int result = Long.hashCode(id);
+        result = 31 * result + Objects.hashCode(user);
+        result = 31 * result + Objects.hashCode(stocks);
         result = 31 * result + Double.hashCode(overallValue);
-        result = 31 * result + historicalValue.hashCode();
+        result = 31 * result + Objects.hashCode(historicalValue);
         return result;
     }
 }

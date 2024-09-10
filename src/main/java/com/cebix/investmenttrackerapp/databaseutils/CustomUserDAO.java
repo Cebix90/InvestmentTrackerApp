@@ -109,10 +109,8 @@ public class CustomUserDAO {
 
     private <T> String getValidationErrorMessage(String fieldName, T value) {
         if (value instanceof String) {
-            if (value.equals("")) {
+            if (((String) value).trim().isEmpty()) {
                 return fieldName + " cannot be empty.";
-            } else {
-                return fieldName + " cannot be null.";
             }
         }
 

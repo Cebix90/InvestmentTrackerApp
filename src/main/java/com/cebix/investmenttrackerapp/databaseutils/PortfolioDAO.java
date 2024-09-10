@@ -14,6 +14,7 @@ import org.hibernate.Transaction;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class PortfolioDAO {
     private final SessionFactory sessionFactory;
@@ -30,21 +31,15 @@ public class PortfolioDAO {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
 
-            if (portfolio.getUser() != null) {
-                CustomUser managedUser = session.merge(portfolio.getUser());
-                portfolio.setUser(managedUser);
-            }
+            CustomUser managedUser = session.merge(portfolio.getUser());
+            portfolio.setUser(managedUser);
 
             session.persist(portfolio);
             transaction.commit();
         }
     }
 
-    public Portfolio findPortfolioByUserId(Long customUserId) {
-        if (customUserId == null) {
-            throw new UserNotFoundException();
-        }
-
+    public Portfolio findPortfolioByUserId(long customUserId) {
         try (Session session = sessionFactory.openSession()) {
             CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
             CriteriaQuery<Portfolio> portfolioCriteriaQuery = criteriaBuilder.createQuery(Portfolio.class);
@@ -61,7 +56,7 @@ public class PortfolioDAO {
         }
     }
 
-    public void deletePortfolio(Long customUserId) {
+    public void deletePortfolio(long customUserId) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             Portfolio portfolioToDelete = findPortfolioByUserId(customUserId);
@@ -74,25 +69,27 @@ public class PortfolioDAO {
         }
     }
 
-    public Portfolio updatePortfolioStocksCollection(Long customUserId, Map<String, Integer> newStocks) {
-        return updatePortfolioField(customUserId, portfolio -> portfolio.setStocks(newStocks), this::validateStock, newStocks);
+    public Portfolio updatePortfolioStocksCollection(long customUserId, Map<String, Integer> newStocks) {
+        return updatePortfolioField(customUserId, portfolio -> portfolio.setStocks(newStocks), this::validateStock, newStocks, "Stocks");
     }
 
-    public Portfolio updatePortfolioOverallValue(Long customUserId, double newOverallValue) {
-        return updatePortfolioField(customUserId, portfolio -> portfolio.setOverallValue(newOverallValue), this::validateOverallValue, newOverallValue);
+    public Portfolio updatePortfolioOverallValue(long customUserId, double newOverallValue) {
+        return updatePortfolioField(customUserId, portfolio -> portfolio.setOverallValue(newOverallValue), this::validateOverallValue, newOverallValue, "OverallValue");
     }
 
-    public Portfolio updatePortfolioHistoricalValue(Long customUserId, Map<LocalDate, Double> newHistoricalValues) {
-        return updatePortfolioField(customUserId, portfolio -> portfolio.setHistoricalValue(newHistoricalValues), this::validateHistoricalValue, newHistoricalValues);
+    public Portfolio updatePortfolioHistoricalValue(long customUserId, Map<LocalDate, Double> newHistoricalValues) {
+        return updatePortfolioField(customUserId, portfolio -> portfolio.setHistoricalValue(newHistoricalValues), this::validateHistoricalValue, newHistoricalValues, "HistoricalValue");
     }
 
-    private <T> Portfolio updatePortfolioField(Long customUserId, Consumer<Portfolio> fieldUpdater, Consumer<T> validator, T value) {
+    private <T> Portfolio updatePortfolioField(long customUserId, Consumer<Portfolio> fieldUpdater, Predicate<T> validator, T value, String fieldName) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             Portfolio portfolioToUpdate = findPortfolioByUserId(customUserId);
 
             if (portfolioToUpdate != null) {
-                validator.accept(value);
+                if (!validator.test(value)) {
+                    throw new IllegalArgumentException(getValidationErrorMessage(fieldName, value));
+                }
                 fieldUpdater.accept(portfolioToUpdate);
                 session.merge(portfolioToUpdate);
                 transaction.commit();
@@ -105,21 +102,29 @@ public class PortfolioDAO {
         }
     }
 
-    private void validateStock(Map<String, Integer> stocks) {
-        if (stocks == null || stocks.isEmpty()) {
-            throw new IllegalArgumentException("Stock must not be null or empty");
-        }
+    private boolean validateStock(Map<String, Integer> stocks) {
+        return stocks != null && !stocks.isEmpty();
     }
 
-    private void validateOverallValue(double overallValue) {
-        if (overallValue <= 0) {
-            throw new IllegalArgumentException("Overall value cannot be less than zero");
-        }
+    private boolean validateOverallValue(double overallValue) {
+        return overallValue >= 0;
     }
 
-    private void validateHistoricalValue(Map<LocalDate, Double> historicalValues) {
-        if (historicalValues == null || historicalValues.isEmpty()) {
-            throw new IllegalArgumentException("Historical Values must not be null or empty");
+    private boolean validateHistoricalValue(Map<LocalDate, Double> historicalValues) {
+        return historicalValues != null && !historicalValues.isEmpty();
+    }
+
+    private <T> String getValidationErrorMessage(String fieldName, T value) {
+        if (value == null) {
+            return fieldName + " cannot be null.";
         }
+
+        if (value instanceof Map<?,?>) {
+            if (((Map<?, ?>) value).isEmpty()) {
+                return fieldName + " cannot be empty.";
+            }
+        }
+
+        return fieldName + " cannot be less than zero.";
     }
 }

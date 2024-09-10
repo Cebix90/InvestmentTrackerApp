@@ -8,17 +8,17 @@ import java.util.Objects;
 public class CustomUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     private String email;
     private String password;
     @OneToOne()
     private Portfolio portfolio;
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -52,12 +52,12 @@ public class CustomUser {
         if (o == null || getClass() != o.getClass()) return false;
 
         CustomUser that = (CustomUser) o;
-        return Objects.equals(id, that.id) && Objects.equals(email, that.email) && Objects.equals(password, that.password) && Objects.equals(portfolio, that.portfolio);
+        return id == that.id && Objects.equals(email, that.email) && Objects.equals(password, that.password) && Objects.equals(portfolio, that.portfolio);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(id);
+        int result = Long.hashCode(id);
         result = 31 * result + Objects.hashCode(email);
         result = 31 * result + Objects.hashCode(password);
         result = 31 * result + Objects.hashCode(portfolio);
