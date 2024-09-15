@@ -1,6 +1,7 @@
 package com.cebix.investmenttrackerapp.services;
 
 import com.cebix.investmenttrackerapp.datamodel.Stock;
+import com.cebix.investmenttrackerapp.exceptions.FutureDateException;
 import com.cebix.investmenttrackerapp.exceptions.InvalidTickerException;
 import com.cebix.investmenttrackerapp.handlers.StocksAPIHandler;
 import com.cebix.investmenttrackerapp.mappers.StockMapper;
@@ -28,10 +29,16 @@ public class StockService {
 
         LocalDate selectedDate;
         if (date == null || date.isEmpty()) {
-            selectedDate = getLastWorkingDay();
+            selectedDate = LocalDate.now().minusDays(1);
         } else {
             selectedDate = LocalDate.parse(date);
         }
+
+        if (selectedDate.isEqual(LocalDate.now()) || selectedDate.isAfter(LocalDate.now())) {
+            throw new FutureDateException();
+        }
+
+        selectedDate = getLastWorkingDay(selectedDate);
 
         String selectedDateString = selectedDate.toString();
 
@@ -48,9 +55,7 @@ public class StockService {
         return StockMapper.mapJSONToStock(jsonData);
     }
 
-    private LocalDate getLastWorkingDay() {
-        LocalDate date = LocalDate.now().minusDays(1);
-
+    private LocalDate getLastWorkingDay(LocalDate date) {
         if(date.getDayOfWeek() == DayOfWeek.SATURDAY) {
             date = date.minusDays(1);
         } else if(date.getDayOfWeek() == DayOfWeek.SUNDAY) {
