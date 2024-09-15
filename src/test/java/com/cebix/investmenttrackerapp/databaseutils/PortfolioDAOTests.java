@@ -30,21 +30,20 @@ public class PortfolioDAOTests {
 
     CustomUserDAO customUserDAO;
     PortfolioDAO portfolioDAO;
+    CustomUser userForTests;
 
     @BeforeEach
     public void testInitialization() {
         int mappedPort = postgresqlContainer.getMappedPort(5432);
         customUserDAO = new CustomUserDAO(CustomUserSessionFactoryTest.getCustomUserSessionFactory(mappedPort));
         portfolioDAO = new PortfolioDAO(CustomUserSessionFactoryTest.getCustomUserSessionFactory(mappedPort));
-        System.out.println(mappedPort);
+        userForTests = createAndSaveUserForTests();
     }
 
     @Nested
     class SavePortfolio {
         @Test
         public void testSavePortfolio_whenPortfolioNotExists_thenCorrect() {
-            CustomUser userForTests = createAndSaveUserForTests();
-
             Portfolio newPortfolio = createPortfolioForTests(userForTests);
 
             Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userForTests.getId());
@@ -66,8 +65,6 @@ public class PortfolioDAOTests {
     class findPortfolioByUserId {
         @Test
         public void testFindPortfolioByUserId_whenUserFound_thenCorrect() {
-            CustomUser userForTests = createAndSaveUserForTests();
-
             Portfolio newPortfolio = createPortfolioForTests(userForTests);
 
             Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userForTests.getId());
@@ -81,7 +78,6 @@ public class PortfolioDAOTests {
     class DeletePortfolio {
         @Test
         public void testDeletePortfolio_whenPortfolioExists_thenCorrect() {
-            CustomUser userForTests = createAndSaveUserForTests();
             Portfolio newPortfolio = createPortfolioForTests(userForTests);
 
             portfolioDAO.deletePortfolio(newPortfolio.getUser().getId());
@@ -93,11 +89,10 @@ public class PortfolioDAOTests {
 
         @Test
         public void testDeletePortfolio_whenUserHasNoPortfolio_thenThrowsException() {
-            CustomUser userWithoutPortfolio = createAndSaveUserForTests();
-            Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userWithoutPortfolio.getId());
+            Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userForTests.getId());
 
             assertNull(foundPortfolio);
-            assertThrows(UserNotFoundException.class, () -> portfolioDAO.deletePortfolio(userWithoutPortfolio.getId()));
+            assertThrows(UserNotFoundException.class, () -> portfolioDAO.deletePortfolio(userForTests.getId()));
         }
     }
 
@@ -108,7 +103,6 @@ public class PortfolioDAOTests {
         class UpdatePortfolioStocksCollection {
             @Test
             public void testUpdatePortfolioStocksCollection_whenPortfolioExists_thenCorrect() {
-                CustomUser userForTests = createAndSaveUserForTests();
                 createPortfolioForTests(userForTests);
 
                 Map<String, Integer> newStocks = new HashMap<>();
@@ -124,20 +118,18 @@ public class PortfolioDAOTests {
 
             @Test
             public void testUpdatePortfolioStocksCollection_whenUserHasNoPortfolio_thenThrowsException() {
-                CustomUser userWithoutPortfolio = createAndSaveUserForTests();
-                Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userWithoutPortfolio.getId());
+                Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userForTests.getId());
 
                 Map<String, Integer> newStocks = new HashMap<>();
                 newStocks.put("AAPL", 10);
                 newStocks.put("GOOGL", 5);
 
                 assertNull(foundPortfolio);
-                assertThrows(UserNotFoundException.class, () -> portfolioDAO.updatePortfolioStocksCollection(userWithoutPortfolio.getId(), newStocks));
+                assertThrows(UserNotFoundException.class, () -> portfolioDAO.updatePortfolioStocksCollection(userForTests.getId(), newStocks));
             }
 
             @Test
             public void testUpdatePortfolioStocksCollection_whenNewStocksCollectionIsNull_thenThrowsException() {
-                CustomUser userForTests = createAndSaveUserForTests();
                 createPortfolioForTests(userForTests);
 
                 assertThrows(IllegalArgumentException.class, () -> portfolioDAO.updatePortfolioStocksCollection(userForTests.getId(), null));
@@ -145,7 +137,6 @@ public class PortfolioDAOTests {
 
             @Test
             public void testUpdatePortfolioStocksCollection_whenNewStocksCollectionIsEmpty_thenThrowsException() {
-                CustomUser userForTests = createAndSaveUserForTests();
                 createPortfolioForTests(userForTests);
                 Map<String, Integer> newStocks = new HashMap<>();
 
@@ -157,7 +148,6 @@ public class PortfolioDAOTests {
         class UpdatePortfolioOverallValue {
             @Test
             public void testUpdatePortfolioOverallValue_whenPortfolioExists_thenCorrect() {
-                CustomUser userForTests = createAndSaveUserForTests();
                 createPortfolioForTests(userForTests);
 
                 Portfolio newPortfolio = portfolioDAO.updatePortfolioOverallValue(userForTests.getId(), 10);
@@ -169,16 +159,14 @@ public class PortfolioDAOTests {
 
             @Test
             public void testUpdatePortfolioOverallValue_whenUserHasNoPortfolio_thenThrowsException() {
-                CustomUser userWithoutPortfolio = createAndSaveUserForTests();
-                Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userWithoutPortfolio.getId());
+                Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userForTests.getId());
 
                 assertNull(foundPortfolio);
-                assertThrows(UserNotFoundException.class, () -> portfolioDAO.updatePortfolioOverallValue(userWithoutPortfolio.getId(), 10));
+                assertThrows(UserNotFoundException.class, () -> portfolioDAO.updatePortfolioOverallValue(userForTests.getId(), 10));
             }
 
             @Test
             public void testUpdatePortfolioOverallValue_whenOverallValueIsLessThanZero_thenThrowsException() {
-                CustomUser userForTests = createAndSaveUserForTests();
                 createPortfolioForTests(userForTests);
 
                 assertThrows(IllegalArgumentException.class, () -> portfolioDAO.updatePortfolioOverallValue(userForTests.getId(), -1));
@@ -189,7 +177,6 @@ public class PortfolioDAOTests {
         class UpdatePortfolioHistoricalValue {
             @Test
             public void testUpdatePortfolioHistoricalValue_whenPortfolioExists_thenCorrect() {
-                CustomUser userForTests = createAndSaveUserForTests();
                 createPortfolioForTests(userForTests);
 
                 Map<LocalDate, Double> newHistoricalValues = new HashMap<>();
@@ -205,20 +192,18 @@ public class PortfolioDAOTests {
 
             @Test
             public void testUpdatePortfolioHistoricalValue_whenUserHasNoPortfolio_thenThrowsException() {
-                CustomUser userWithoutPortfolio = createAndSaveUserForTests();
-                Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userWithoutPortfolio.getId());
+                Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userForTests.getId());
 
                 Map<LocalDate, Double> newHistoricalValues = new HashMap<>();
                 newHistoricalValues.put(LocalDate.now().minusDays(1), 10.0);
                 newHistoricalValues.put(LocalDate.now().minusDays(2), 5.0);
 
                 assertNull(foundPortfolio);
-                assertThrows(UserNotFoundException.class, () -> portfolioDAO.updatePortfolioHistoricalValue(userWithoutPortfolio.getId(), newHistoricalValues));
+                assertThrows(UserNotFoundException.class, () -> portfolioDAO.updatePortfolioHistoricalValue(userForTests.getId(), newHistoricalValues));
             }
 
             @Test
             public void testUpdatePortfolioHistoricalValue_whenNewHistoricalValuesIsNull_thenThrowsException() {
-                CustomUser userForTests = createAndSaveUserForTests();
                 createPortfolioForTests(userForTests);
 
                 assertThrows(IllegalArgumentException.class, () -> portfolioDAO.updatePortfolioHistoricalValue(userForTests.getId(), null));
@@ -226,7 +211,6 @@ public class PortfolioDAOTests {
 
             @Test
             public void testUpdatePortfolioHistoricalValue_whenNewHistoricalValuesIsEmpty_thenThrowsException() {
-                CustomUser userForTests = createAndSaveUserForTests();
                 createPortfolioForTests(userForTests);
                 Map<LocalDate, Double> newHistoricalValues = new HashMap<>();
 
