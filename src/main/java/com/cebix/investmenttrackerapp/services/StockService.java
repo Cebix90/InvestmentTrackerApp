@@ -23,20 +23,11 @@ public class StockService {
     }
 
     public Stock retrieveStockData(String ticker, String date) {
-        if (ticker == null || ticker.isEmpty()) {
-            throw new InvalidTickerException();
-        }
+        validateTicker(ticker);
 
-        LocalDate selectedDate;
-        if (date == null || date.isEmpty()) {
-            selectedDate = LocalDate.now().minusDays(1);
-        } else {
-            selectedDate = LocalDate.parse(date);
-        }
+        LocalDate selectedDate = parseSelectedDate(date);
 
-        if (selectedDate.isEqual(LocalDate.now()) || selectedDate.isAfter(LocalDate.now())) {
-            throw new FutureDateException();
-        }
+        validateNotCurrentOrFutureDate(selectedDate);
 
         selectedDate = getLastWorkingDay(selectedDate);
 
@@ -55,6 +46,12 @@ public class StockService {
         return StockMapper.mapJSONToStock(jsonData);
     }
 
+    private void validateTicker(String ticker) {
+        if (ticker == null || ticker.isEmpty()) {
+            throw new InvalidTickerException();
+        }
+    }
+
     private LocalDate getLastWorkingDay(LocalDate date) {
         if(date.getDayOfWeek() == DayOfWeek.SATURDAY) {
             date = date.minusDays(1);
@@ -63,5 +60,19 @@ public class StockService {
         }
 
         return date;
+    }
+
+    private void validateNotCurrentOrFutureDate(LocalDate selectedDate) {
+        if (selectedDate.isEqual(LocalDate.now()) || selectedDate.isAfter(LocalDate.now())) {
+            throw new FutureDateException();
+        }
+    }
+
+    private LocalDate parseSelectedDate(String date) {
+        if (date == null || date.isEmpty()) {
+            return LocalDate.now().minusDays(1);
+        } else {
+            return LocalDate.parse(date);
+        }
     }
 }
