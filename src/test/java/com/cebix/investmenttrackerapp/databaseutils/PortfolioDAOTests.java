@@ -28,9 +28,9 @@ public class PortfolioDAOTests {
             .withPassword("test")
             .withReuse(true);
 
-    CustomUserDAO customUserDAO;
-    PortfolioDAO portfolioDAO;
-    CustomUser userForTests;
+    private CustomUserDAO customUserDAO;
+    private PortfolioDAO portfolioDAO;
+    private CustomUser userForTests;
 
     @BeforeEach
     public void testInitialization() {
@@ -222,7 +222,7 @@ public class PortfolioDAOTests {
     private CustomUser createAndSaveUserForTests() {
         CustomUser newUser = new CustomUser();
         newUser.setEmail("test@cebix.com");
-        newUser.setPassword("password123");
+        newUser.setPassword("Password123!");
         newUser.setPortfolio(null);
 
         customUserDAO.saveUser(newUser);

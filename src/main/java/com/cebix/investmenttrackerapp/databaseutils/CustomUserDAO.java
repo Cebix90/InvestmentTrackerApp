@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class CustomUserDAO {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -24,6 +25,14 @@ public class CustomUserDAO {
     }
 
     public void saveUser(CustomUser customUser) {
+        if (!validateEmail(customUser.getEmail())) {
+            throw new IllegalArgumentException(getValidationErrorMessage("Email", customUser.getEmail()));
+        }
+
+        if (!validatePassword(customUser.getPassword())) {
+            throw new IllegalArgumentException(getValidationErrorMessage("Password", customUser.getPassword()));
+        }
+
         try (Session session = sessionFactory.openSession()) {
             if(!userExists(customUser)) {
                 Transaction transaction = session.beginTransaction();
@@ -96,11 +105,16 @@ public class CustomUserDAO {
     }
 
     private boolean validateEmail(String email) {
-        return email != null && !email.trim().isEmpty();
+        final String regexPattern = "^(?=.{1,64}@)[A-Za-z0-9\\+_-]+(\\.[A-Za-z0-9\\+_-]+)*@"
+                + "[^-][A-Za-z0-9\\+-]+(\\.[A-Za-z0-9\\+-]+)*(\\.[A-Za-z]{2,})$";
+
+        return email != null && Pattern.compile(regexPattern).matcher(email).matches();
     }
 
     private boolean validatePassword(String password) {
-        return password != null && !password.trim().isEmpty();
+        final String regexPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!?@#$%^&+=]).{8,}$";
+
+        return password != null && Pattern.compile(regexPattern).matcher(password).matches();
     }
 
     private boolean validatePortfolio(Portfolio portfolio) {
@@ -108,13 +122,25 @@ public class CustomUserDAO {
     }
 
     private <T> String getValidationErrorMessage(String fieldName, T value) {
-        if (value instanceof String) {
-            if (((String) value).trim().isEmpty()) {
-                return fieldName + " cannot be empty.";
-            }
+        if (value instanceof String && ((String) value).trim().isEmpty()) {
+            return fieldName + " cannot empty.";
+        }
+
+        if (fieldName.equalsIgnoreCase("Password")) {
+            return getPasswordValidationMessage();
+        } else if (fieldName.equalsIgnoreCase("Email")) {
+            return getEmailValidationMessage();
         }
 
         return fieldName + " cannot be null.";
+    }
+
+    private String getPasswordValidationMessage() {
+        return "Password must contains at least: 8 characters, one uppercase and lowercase letter, one digit, one special character, no spaces or tabs";
+    }
+
+    private String getEmailValidationMessage() {
+        return "Email format should be in the form: username@domain.com";
     }
 
     private boolean userExists(CustomUser customUser) {
