@@ -1,6 +1,7 @@
 package com.cebix.investmenttrackerapp.databaseutils;
 
 import com.cebix.investmenttrackerapp.datamodel.CustomUser;
+import com.cebix.investmenttrackerapp.datamodel.Portfolio;
 import com.cebix.investmenttrackerapp.exceptions.UserAlreadyExistsException;
 import com.cebix.investmenttrackerapp.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,9 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,12 +29,14 @@ public class CustomUserDAOTests {
                 .withPassword("test")
                 .withReuse(true);
 
-    CustomUserDAO customUserDAO;
+    private CustomUserDAO customUserDAO;
+    private PortfolioDAO portfolioDAO;
 
     @BeforeEach
     public void testInitialization() {
         int mappedPort = postgresqlContainer.getMappedPort(5432);
         customUserDAO = new CustomUserDAO(CustomUserSessionFactoryTest.getCustomUserSessionFactory(mappedPort));
+        portfolioDAO = new PortfolioDAO(CustomUserSessionFactoryTest.getCustomUserSessionFactory(mappedPort));
         System.out.println(mappedPort);
     }
 
@@ -54,6 +60,23 @@ public class CustomUserDAOTests {
             customUserDAO.saveUser(newUser);
 
             assertThrows(UserAlreadyExistsException.class, () -> customUserDAO.saveUser(newUser));
+        }
+
+        @Test
+        public void testSaveUser_whenUserHasIncorrectEmail_thenThrowsException() {
+            CustomUser newUser = createUserForTests("testexample.com");
+
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.saveUser(newUser));
+        }
+
+        @Test
+        public void testSaveUser_whenUserHasIncorrectPassword_thenThrowsException() {
+            CustomUser newUser = new CustomUser();
+            newUser.setEmail("test@example.com");
+            newUser.setPassword("pass12");
+            newUser.setPortfolio(null);
+
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.saveUser(newUser));
         }
     }
 
@@ -137,10 +160,22 @@ public class CustomUserDAOTests {
         }
 
         @Test
+        public void testUpdateUserEmail_whenNewEmailIsNotCorrectFormat_thenThrowsException() {
+            CustomUser newUser = createUserForTests("test@example.com");
+            customUserDAO.saveUser(newUser);
+
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserEmail("test@example.com", "username.@domain.com"));
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserEmail("test@example.com", ".user.name@domain.com"));
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserEmail("test@example.com", "user-name@domain.com."));
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserEmail("test@example.com", "username@.com"));
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserEmail("test@example.com", "username.com"));
+        }
+
+        @Test
         public void testUpdateUserPassword_whenUserExists_thenCorrect() {
             CustomUser newUser = createUserForTests("test@example.com");
             customUserDAO.saveUser(newUser);
-            newUser = customUserDAO.updateUserPassword("test@example.com", "updatedPassword123");
+            newUser = customUserDAO.updateUserPassword("test@example.com", "updatedPassword123!");
             CustomUser foundUser = customUserDAO.findUserByEmail("test@example.com");
 
             assertNotNull(foundUser);
@@ -155,7 +190,7 @@ public class CustomUserDAOTests {
         }
 
         @Test
-        public void testUpdateUserPassword_whenNewEmailIsNull_thenThrowsException() {
+        public void testUpdateUserPassword_whenNewPasswordIsNull_thenThrowsException() {
             CustomUser newUser = createUserForTests("test@example.com");
             customUserDAO.saveUser(newUser);
 
@@ -163,7 +198,7 @@ public class CustomUserDAOTests {
         }
 
         @Test
-        public void testUpdateUserPassword_whenNewEmailIsEmpty_thenThrowsException() {
+        public void testUpdateUserPassword_whenNewPasswordIsEmpty_thenThrowsException() {
             CustomUser newUser = createUserForTests("test@example.com");
             customUserDAO.saveUser(newUser);
 
@@ -171,45 +206,56 @@ public class CustomUserDAOTests {
         }
 
         @Test
+        public void testUpdateUserPassword_whenNewPasswordIsNotCorrectFormat_thenThrowsException() {
+            CustomUser newUser = createUserForTests("test@example.com");
+            customUserDAO.saveUser(newUser);
+
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserPassword("test@example.com", "PASSWORD123!"));
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserPassword("test@example.com", "password123!"));
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserPassword("test@example.com", "Password123"));
+            assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserPassword("test@example.com", "Password!"));
+        }
+
+        @Test
         public void testUpdateUserPortfolio_whenUserExists_thenCorrect() {
             CustomUser newUser = createUserForTests("test@example.com");
             customUserDAO.saveUser(newUser);
-            newUser = customUserDAO.updateUserPortfolio("test@example.com", "Updated Portfolio");
+
+            Map<String, Integer> initialStocks = new HashMap<>();
+            initialStocks.put("AAPL", 10);
+            initialStocks.put("TSLA", 5);
+            Portfolio portfolio = new Portfolio(newUser, initialStocks, 1000.0, new HashMap<>());
+            portfolioDAO.savePortfolio(portfolio);
+
+            newUser = customUserDAO.updateUserPortfolio("test@example.com", portfolio);
+
             CustomUser foundUser = customUserDAO.findUserByEmail("test@example.com");
 
             assertNotNull(foundUser);
             assertEquals(newUser.getEmail(), foundUser.getEmail());
             assertEquals(newUser.getPassword(), foundUser.getPassword());
-            assertEquals(newUser.getPortfolio(), foundUser.getPortfolio());
+            assertEquals(newUser.getPortfolio().getId(), foundUser.getPortfolio().getId());
         }
 
         @Test
         public void testUpdateUserPortfolio_whenUserNotFound_thenThrowsException() {
-            assertThrows(UserNotFoundException.class, () -> customUserDAO.updateUserPortfolio("inccorect@example.com", "Updated Portfolio"));
+            assertThrows(UserNotFoundException.class, () -> customUserDAO.updateUserPortfolio("inccorect@example.com", new Portfolio()));
         }
 
         @Test
-        public void testUpdateUserPortfolio_whenNewEmailIsNull_thenThrowsException() {
+        public void testUpdateUserPortfolio_whenNewPortfolioIsNull_thenThrowsException() {
             CustomUser newUser = createUserForTests("test@example.com");
             customUserDAO.saveUser(newUser);
 
             assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserPortfolio("test@example.com", null));
-        }
-
-        @Test
-        public void testUpdateUserPortfolio_whenNewEmailIsEmpty_thenThrowsException() {
-            CustomUser newUser = createUserForTests("test@example.com");
-            customUserDAO.saveUser(newUser);
-
-            assertThrows(IllegalArgumentException.class, () -> customUserDAO.updateUserPortfolio("test@example.com", ""));
         }
     }
 
     private CustomUser createUserForTests(String email) {
         CustomUser newUser = new CustomUser();
         newUser.setEmail(email);
-        newUser.setPassword("password123");
-        newUser.setPortfolio("Test Portfolio");
+        newUser.setPassword("Password123!");
+        newUser.setPortfolio(null);
 
         return newUser;
     }

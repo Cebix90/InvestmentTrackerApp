@@ -1,6 +1,7 @@
 package com.cebix.investmenttrackerapp.services;
 
 import com.cebix.investmenttrackerapp.datamodel.Stock;
+import com.cebix.investmenttrackerapp.exceptions.FutureDateException;
 import com.cebix.investmenttrackerapp.exceptions.InvalidTickerException;
 import com.cebix.investmenttrackerapp.handlers.StocksAPIHandler;
 import com.cebix.investmenttrackerapp.mappers.StockMapper;
@@ -22,16 +23,13 @@ public class StockService {
     }
 
     public Stock retrieveStockData(String ticker, String date) {
-        if (ticker == null || ticker.isEmpty()) {
-            throw new InvalidTickerException();
-        }
+        validateTicker(ticker);
 
-        LocalDate selectedDate;
-        if (date == null || date.isEmpty()) {
-            selectedDate = getLastWorkingDay();
-        } else {
-            selectedDate = LocalDate.parse(date);
-        }
+        LocalDate selectedDate = parseSelectedDate(date);
+
+        validateNotCurrentOrFutureDate(selectedDate);
+
+        selectedDate = getLastWorkingDay(selectedDate);
 
         String selectedDateString = selectedDate.toString();
 
@@ -48,9 +46,13 @@ public class StockService {
         return StockMapper.mapJSONToStock(jsonData);
     }
 
-    private LocalDate getLastWorkingDay() {
-        LocalDate date = LocalDate.now().minusDays(1);
+    private void validateTicker(String ticker) {
+        if (ticker == null || ticker.isEmpty()) {
+            throw new InvalidTickerException();
+        }
+    }
 
+    private LocalDate getLastWorkingDay(LocalDate date) {
         if(date.getDayOfWeek() == DayOfWeek.SATURDAY) {
             date = date.minusDays(1);
         } else if(date.getDayOfWeek() == DayOfWeek.SUNDAY) {
@@ -58,5 +60,19 @@ public class StockService {
         }
 
         return date;
+    }
+
+    private void validateNotCurrentOrFutureDate(LocalDate selectedDate) {
+        if (selectedDate.isEqual(LocalDate.now()) || selectedDate.isAfter(LocalDate.now())) {
+            throw new FutureDateException();
+        }
+    }
+
+    private LocalDate parseSelectedDate(String date) {
+        if (date == null || date.isEmpty()) {
+            return LocalDate.now().minusDays(1);
+        } else {
+            return LocalDate.parse(date);
+        }
     }
 }
