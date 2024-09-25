@@ -3,6 +3,8 @@ package com.cebix.investmenttrackerapp.controllers;
 import com.cebix.investmenttrackerapp.databaseutils.CustomUserDAO;
 import com.cebix.investmenttrackerapp.databaseutils.CustomUserSessionFactory;
 import com.cebix.investmenttrackerapp.datamodel.CustomUser;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,5 +28,12 @@ public class SecurityController {
         CustomUserDAO dao = new CustomUserDAO(CustomUserSessionFactory.getCustomUserSessionFactory());
         dao.saveUser(customUser);
         return "redirect:/login";
+    }
+
+    @GetMapping("/logout")
+    public String logoutUser(HttpServletRequest request) throws ServletException
+    {
+        request.logout();
+        return "redirect:/";
     }
 }
