@@ -7,18 +7,20 @@
     <meta charset="UTF-8">
     <title>Register</title>
 </head>
-<body layout:fragment="body">
-<section layout:fragment="body">
-<form th:action="@{/register}" th:object="${customUser}" method="post">
-    <input type="email" id="email" th:field="*{email}" placeholder="Email"/>
-    <label class="form-label" for="email">Email</label>
-    <input type="password" id="password" class="form-control" th:field="*{password}"
-           placeholder="Password"/>
-    <label class="form-label" for="password">Password</label>
-    <button type="submit" class="btn btn-primary btn-block mb-4">
-        Register
-    </button>
-</form>
-</section>
+<body>
+<main layout:fragment="body">
+    <section>
+        <form th:action="@{/register}" th:object="${customUser}" method="post">
+            <input type="email" id="email" th:field="*{email}" placeholder="Email"/>
+            <label class="form-label" for="email">Email</label>
+            <input type="password" id="password" class="form-control" th:field="*{password}"
+                   placeholder="Password"/>
+            <label class="form-label" for="password">Password</label>
+            <button type="submit" class="btn btn-primary btn-block mb-4">
+                Register
+            </button>
+        </form>
+    </section>
+</main>
 </body>
 </html>

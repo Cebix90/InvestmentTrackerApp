@@ -8,16 +8,17 @@
     <title>Login page</title>
 </head>
 <body>
-<section layout:fragment="body">
-<form th:action="@{/login}" method="post">
-    <div>
-        <input type="text" name="email" placeholder="Username"/>
-    </div>
-    <div>
-        <input type="password" name="password" placeholder="Password"/>
-    </div>
-    <input type="submit" value="Log in" />
-</form>
-</section>
+<main layout:fragment="body">
+    <section>
+        <form th:action="@{/login}" method="post">
+            <div><input type="text" name="email" placeholder="Username"/>
+            </div>
+            <div>
+                <input type="password" name="password" placeholder="Password"/>
+            </div>
+            <input type="submit" value="Log in"/>
+        </form>
+    </section>
+</main>
 </body>
 </html>
