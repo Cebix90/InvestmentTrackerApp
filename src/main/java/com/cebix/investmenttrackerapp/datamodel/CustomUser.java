@@ -1,6 +1,9 @@
 package com.cebix.investmenttrackerapp.datamodel;
 
+import com.cebix.investmenttrackerapp.security.passwords.ValidPassword;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.Objects;
 
@@ -9,9 +12,13 @@ public class CustomUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @NotEmpty(message = "Email can not be empty.")
+    @Email(message = "Please provide correct email format.")
     private String email;
+    @NotEmpty(message = "Password can not be empty.")
+    @ValidPassword
     private String password;
-    @OneToOne()
+    @OneToOne
     private Portfolio portfolio;
 
     public long getId() {

@@ -27,7 +27,7 @@ public class SecurityController {
     public String registerUser(CustomUser customUser) {
         CustomUserDAO dao = new CustomUserDAO(CustomUserSessionFactory.getCustomUserSessionFactory());
         dao.saveUser(customUser);
-        return "redirect:/login";
+        return "redirect:/";
     }
 
     @GetMapping("/logout")

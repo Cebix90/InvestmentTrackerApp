@@ -9,9 +9,10 @@
 </head>
 <body>
 <main layout:fragment="body">
-    <section>
+    <section class="login-form">
         <form th:action="@{/login}" method="post">
-            <div><input type="text" name="email" placeholder="Username"/>
+            <div>
+                <input type="text" name="email" placeholder="Username"/>
             </div>
             <div>
                 <input type="password" name="password" placeholder="Password"/>
