@@ -11,12 +11,12 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
 
     public PasswordConstraintValidator() {
         props.put("ILLEGAL_WHITESPACE", "Password can not contain whitespace");
-        props.put("TOO_SHORT", "Password must contains at least %1$s characters");
-        props.put("TOO_LONG", "Password must contains at least %1$s characters");
-        props.put("UPPER_CASE", "Password must contains at least 1 uppercase character");
-        props.put("LOWER_CASE", "Password must contains at least 1 lowercase character");
-        props.put("NUMERIC", "Password must contains at least 1 number");
-        props.put("SPECIAL_CHAR", "Password must contains at least 1 special character");
+        props.put("TOO_SHORT", "Password must contain at least %1$s characters");
+        props.put("TOO_LONG", "Password must contain at most %2$s characters");
+        props.put("INSUFFICIENT_UPPERCASE", "Password must contains at least %1$s uppercase character");
+        props.put("INSUFFICIENT_LOWERCASE", "Password must contains at least %1$s lowercase character");
+        props.put("INSUFFICIENT_DIGIT", "Password must contains at least %1$s digit character");
+        props.put("INSUFFICIENT_SPECIAL", "Password must contains at least %1$s special character");
     }
 
     @Override

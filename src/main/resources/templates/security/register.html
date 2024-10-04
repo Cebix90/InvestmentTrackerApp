@@ -10,15 +10,20 @@
 <body>
 <main layout:fragment="body">
     <section>
-        <form th:action="@{/register}" th:object="${customUser}" method="post">
-            <input type="email" id="email" th:field="*{email}" placeholder="Email"/>
-            <label class="form-label" for="email">Email</label>
-            <input type="password" id="password" class="form-control" th:field="*{password}"
-                   placeholder="Password"/>
-            <label class="form-label" for="password">Password</label>
-            <button type="submit" class="btn btn-primary btn-block mb-4">
-                Register
-            </button>
+        <form th:action="@{/register}" th:object="${registerUserDTO}" method="post">
+            <div>
+                <input type="email" id="email" th:field="*{email}" placeholder="Email"/>
+                <label for="email">Email</label>
+                <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+
+            <div>
+                <input type="password" id="password" th:field="*{password}" placeholder="Password"/>
+                <label for="password">Password</label>
+                <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block mb-4">Register</button>
         </form>
     </section>
 </main>
