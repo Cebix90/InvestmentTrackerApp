@@ -26,6 +26,14 @@ public class CustomUserDAO {
 
     //TODO clean validating for email and password
     public void saveUser(CustomUser customUser) {
+        if (!validateEmail(customUser.getEmail())) {
+            throw new IllegalArgumentException(getValidationErrorMessage("Email", customUser.getEmail()));
+        }
+
+        if (!validatePassword(customUser.getPassword())) {
+            throw new IllegalArgumentException(getValidationErrorMessage("Password", customUser.getPassword()));
+        }
+
         try (Session session = sessionFactory.openSession()) {
             if(!userExists(customUser)) {
                 Transaction transaction = session.beginTransaction();

@@ -31,7 +31,7 @@ public class SecurityController {
 
     @PostMapping("/register")
     public String registerUser(@Valid RegisterUserDTO registerUserDTO, final BindingResult bindingResult, final Model model) {
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             model.addAttribute("registerUserDTO", registerUserDTO);
             return "security/register";
         }
@@ -42,7 +42,7 @@ public class SecurityController {
             customUser.setPassword(registerUserDTO.getPassword());
 
             dao.saveUser(customUser);
-        } catch(UserAlreadyExistsException e) {
+        } catch (UserAlreadyExistsException e) {
             bindingResult.rejectValue("email", "customUser.email", "Email already in use. Please try different email.");
             model.addAttribute("registerUserDTO", registerUserDTO);
             return "security/register";
@@ -52,8 +52,7 @@ public class SecurityController {
     }
 
     @GetMapping("/logout")
-    public String logoutUser(HttpServletRequest request) throws ServletException
-    {
+    public String logoutUser(HttpServletRequest request) throws ServletException {
         request.logout();
         return "redirect:/";
     }

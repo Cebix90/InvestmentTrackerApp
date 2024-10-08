@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .formLogin((form) -> form.loginPage("/login")
                         .loginProcessingUrl("/login")
                         .usernameParameter("email")
-                        .defaultSuccessUrl("/")  //TODO change this
+                        .defaultSuccessUrl("/")
                         .permitAll());
 
         return security.build();

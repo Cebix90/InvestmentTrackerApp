@@ -8,7 +8,6 @@ public class RegisterUserDTO {
     @NotEmpty(message = "Email can not be empty.")
     @Email(message = "Please provide correct email format.")
     private String email;
-
     @NotEmpty(message = "Password can not be empty.")
     @ValidPassword
     private String password;
