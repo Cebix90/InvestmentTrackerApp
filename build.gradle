@@ -32,6 +32,8 @@ dependencies {
     implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.0.0'
     testImplementation "org.testcontainers:junit-jupiter:1.20.0"
     testImplementation 'org.testcontainers:postgresql:1.20.0'
+    implementation 'org.passay:passay:1.6.4'
+
 }
 
 tasks.named('test') {

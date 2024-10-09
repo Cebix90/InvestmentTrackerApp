@@ -11,7 +11,7 @@ public class CustomUser {
     private long id;
     private String email;
     private String password;
-    @OneToOne()
+    @OneToOne
     private Portfolio portfolio;
 
     public long getId() {

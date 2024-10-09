@@ -24,6 +24,7 @@ public class CustomUserDAO {
         this.sessionFactory = sessionFactory;
     }
 
+    //TODO clean validating for email and password
     public void saveUser(CustomUser customUser) {
         if (!validateEmail(customUser.getEmail())) {
             throw new IllegalArgumentException(getValidationErrorMessage("Email", customUser.getEmail()));

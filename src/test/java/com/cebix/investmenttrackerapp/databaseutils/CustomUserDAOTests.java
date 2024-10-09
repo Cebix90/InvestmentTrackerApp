@@ -24,10 +24,10 @@ public class CustomUserDAOTests {
 
     @Container
     PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer(postgres)
-                .withDatabaseName("test_investment_tracker")
-                .withUsername("test")
-                .withPassword("test")
-                .withReuse(true);
+            .withDatabaseName("test_investment_tracker")
+            .withUsername("test")
+            .withPassword("test")
+            .withReuse(true);
 
     private CustomUserDAO customUserDAO;
     private PortfolioDAO portfolioDAO;
@@ -124,7 +124,7 @@ public class CustomUserDAOTests {
     }
 
     @Nested
-    class UpdateUser{
+    class UpdateUser {
         @Test
         public void testUpdateUserEmail_whenUserExists_thenCorrect() {
             CustomUser newUser = createUserForTests("test@example.com");

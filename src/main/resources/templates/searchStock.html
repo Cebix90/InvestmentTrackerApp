@@ -8,32 +8,34 @@
     <title>Stock Search</title>
 </head>
 <body>
-<section layout:fragment="body">
-    <div class="container">
-        <h1>Search for Stock</h1>
-        <form action="/getStock" method="get">
-            <div class="mb-3">
-                <label for="ticker" class="form-label">Ticker:</label>
-                <input type="text" id="ticker" name="ticker" class="form-control" required>
+<main layout:fragment="body">
+    <section>
+        <div class="container">
+            <h1>Search for Stock</h1>
+            <form action="/getStock" method="get">
+                <div class="mb-3">
+                    <label for="ticker" class="form-label">Ticker:</label>
+                    <input type="text" id="ticker" name="ticker" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">Date (optional):</label>
+                    <input type="date" id="date" name="date" class="form-control">
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+            <div id="result" class="mt-4">
+                <th:block th:if="${stock}">
+                    <h2>Stock Information</h2>
+                    <p>Ticker: <span th:text="${stock.ticker}"></span></p>
+                    <p>Value: <span th:text="${stock.value}"></span></p>
+                    <p>Date: <span th:text="${stock.date}"></span></p>
+                </th:block>
+                <th:block th:if="${error}">
+                    <p class="text-danger" th:text="${error}"></p>
+                </th:block>
             </div>
-            <div class="mb-3">
-                <label for="date" class="form-label">Date (optional):</label>
-                <input type="date" id="date" name="date" class="form-control">
-            </div>
-            <button type="submit" class="btn btn-primary">Search</button>
-        </form>
-        <div id="result" class="mt-4">
-            <th:block th:if="${stock}">
-                <h2>Stock Information</h2>
-                <p>Ticker: <span th:text="${stock.ticker}"></span></p>
-                <p>Value: <span th:text="${stock.value}"></span></p>
-                <p>Date: <span th:text="${stock.date}"></span></p>
-            </th:block>
-            <th:block th:if="${error}">
-                <p class="text-danger" th:text="${error}"></p>
-            </th:block>
         </div>
-    </div>
-</section>
+    </section>
+</main>
 </body>
 </html>
