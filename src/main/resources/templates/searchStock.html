@@ -10,7 +10,7 @@
 <body>
 <main layout:fragment="body">
     <section>
-        <div class="container">
+        <div class="container text-white">
             <h1>Search for Stock</h1>
             <form action="/getStock" method="get">
                 <div class="mb-3">
@@ -23,7 +23,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Search</button>
             </form>
-            <div id="result" class="mt-4">
+            <div id="result" class="mt-4 text-white">
                 <th:block th:if="${stock}">
                     <h2>Stock Information</h2>
                     <p>Ticker: <span th:text="${stock.ticker}"></span></p>
