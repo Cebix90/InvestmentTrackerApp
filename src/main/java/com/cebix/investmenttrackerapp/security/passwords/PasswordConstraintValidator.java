@@ -21,16 +21,27 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        PasswordValidator validator = getPasswordValidator();
+        if (value == null) {
+            if (context != null) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate("Password cannot be null").addConstraintViolation();
+            }
+            return false;
+        }
 
+        PasswordValidator validator = getPasswordValidator();
         RuleResult result = validator.validate(new PasswordData(value));
+
         if (result.isValid()) {
             return true;
         }
-        context.disableDefaultConstraintViolation();
-        context.buildConstraintViolationWithTemplate(
-                String.join(", ", validator.getMessages(result)))
-                .addConstraintViolation();
+
+        if (context != null) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                            String.join(", ", validator.getMessages(result)))
+                    .addConstraintViolation();
+        }
         return false;
     }
 

@@ -4,6 +4,7 @@ import com.cebix.investmenttrackerapp.datamodel.CustomUser;
 import com.cebix.investmenttrackerapp.datamodel.Portfolio;
 import com.cebix.investmenttrackerapp.exceptions.UserAlreadyExistsException;
 import com.cebix.investmenttrackerapp.exceptions.UserNotFoundException;
+import com.cebix.investmenttrackerapp.security.passwords.PasswordConstraintValidator;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -19,6 +20,7 @@ import java.util.regex.Pattern;
 public class CustomUserDAO {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SessionFactory sessionFactory;
+    private final PasswordConstraintValidator passwordValidator = new PasswordConstraintValidator();
 
     public CustomUserDAO(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
@@ -35,7 +37,7 @@ public class CustomUserDAO {
         }
 
         try (Session session = sessionFactory.openSession()) {
-            if(!userExists(customUser)) {
+            if (!userExists(customUser)) {
                 Transaction transaction = session.beginTransaction();
                 customUser.setPassword(passwordEncoder.encode(customUser.getPassword()));
                 session.persist(customUser);
@@ -113,9 +115,7 @@ public class CustomUserDAO {
     }
 
     private boolean validatePassword(String password) {
-        final String regexPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!?@#$%^&+=]).{8,}$";
-
-        return password != null && Pattern.compile(regexPattern).matcher(password).matches();
+        return passwordValidator.isValid(password, null);
     }
 
     private boolean validatePortfolio(Portfolio portfolio) {
