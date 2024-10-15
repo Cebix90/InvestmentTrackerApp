@@ -3,8 +3,24 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Investment Tracker</title>
+    <meta charset="UTF-8">
+    <title>Home - InvestmentTracker</title>
 </head>
 <body>
+<main layout:fragment="body">
+    <section class="py-5 bg-dark text-white">
+        <div class="container px-5 my-5">
+            <h2 class="display-4 fw-bolder mb-4 text-center text-light my-5">Let's search something together!</h2>
+            <div class="row my-5">
+                <div class="col-md-6 text-start">
+                    <p class="lead text-secondary mb-4">Build your own stock portfolio</p>
+                </div>
+                <div class="col-md-6 text-end d-flex align-items-start justify-content-end" style="margin-top: 7rem !important">
+                    <p class="text-muted fs-5 mb-4">Search the current and historical values of any stock</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
 </body>
 </html>

@@ -7,6 +7,8 @@ import com.cebix.investmenttrackerapp.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -24,10 +26,10 @@ public class CustomUserDAOTests {
 
     @Container
     PostgreSQLContainer postgresqlContainer = (PostgreSQLContainer) new PostgreSQLContainer(postgres)
-                .withDatabaseName("test_investment_tracker")
-                .withUsername("test")
-                .withPassword("test")
-                .withReuse(true);
+            .withDatabaseName("test_investment_tracker")
+            .withUsername("test")
+            .withPassword("test")
+            .withReuse(true);
 
     private CustomUserDAO customUserDAO;
     private PortfolioDAO portfolioDAO;
@@ -58,8 +60,9 @@ public class CustomUserDAOTests {
         public void testSaveUser_whenUserExists_thenThrowsException() {
             CustomUser newUser = createUserForTests("test@example.com");
             customUserDAO.saveUser(newUser);
+            CustomUser userForSecondCheck = createUserForTests("test@example.com");
 
-            assertThrows(UserAlreadyExistsException.class, () -> customUserDAO.saveUser(newUser));
+            assertThrows(UserAlreadyExistsException.class, () -> customUserDAO.saveUser(userForSecondCheck));
         }
 
         @Test
@@ -69,11 +72,12 @@ public class CustomUserDAOTests {
             assertThrows(IllegalArgumentException.class, () -> customUserDAO.saveUser(newUser));
         }
 
-        @Test
-        public void testSaveUser_whenUserHasIncorrectPassword_thenThrowsException() {
+        @ParameterizedTest
+        @ValueSource(strings = {"pass12", "PASSWORD", "password", "12345678", "pass word", ""})
+        public void testSaveUser_whenUserHasIncorrectPassword_thenThrowsException(String invalidPassword) {
             CustomUser newUser = new CustomUser();
             newUser.setEmail("test@example.com");
-            newUser.setPassword("pass12");
+            newUser.setPassword(invalidPassword);
             newUser.setPortfolio(null);
 
             assertThrows(IllegalArgumentException.class, () -> customUserDAO.saveUser(newUser));
@@ -124,7 +128,7 @@ public class CustomUserDAOTests {
     }
 
     @Nested
-    class UpdateUser{
+    class UpdateUser {
         @Test
         public void testUpdateUserEmail_whenUserExists_thenCorrect() {
             CustomUser newUser = createUserForTests("test@example.com");
@@ -175,7 +179,7 @@ public class CustomUserDAOTests {
         public void testUpdateUserPassword_whenUserExists_thenCorrect() {
             CustomUser newUser = createUserForTests("test@example.com");
             customUserDAO.saveUser(newUser);
-            newUser = customUserDAO.updateUserPassword("test@example.com", "updatedPassword123!");
+            newUser = customUserDAO.updateUserPassword("test@example.com", "updPass123!");
             CustomUser foundUser = customUserDAO.findUserByEmail("test@example.com");
 
             assertNotNull(foundUser);
