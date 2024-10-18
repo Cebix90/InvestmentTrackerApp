@@ -47,7 +47,7 @@
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/InvestmentTrackerApp.git
+    git clone https://github.com/Cebix90/InvestmentTrackerApp.git
     cd InvestmentTrackerApp
     ```
 
