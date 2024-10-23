@@ -13,6 +13,9 @@
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/searchStock}">Search for stock</a>
                 </li>
+                <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <a class="nav-link" th:href="@{/portfolio/createPortfolio}">Your Portfolio</a>
+                </li>
                 <li class="nav-item" th:unless="${#authorization.expression('isAuthenticated()')}">
                     <a class="nav-link" th:href="@{/register}">Register</a>
                 </li>

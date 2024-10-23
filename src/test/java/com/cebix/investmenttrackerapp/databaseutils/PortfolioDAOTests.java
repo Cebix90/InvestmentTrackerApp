@@ -11,7 +11,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -179,9 +179,9 @@ public class PortfolioDAOTests {
             public void testUpdatePortfolioHistoricalValue_whenPortfolioExists_thenCorrect() {
                 createPortfolioForTests(userForTests);
 
-                Map<LocalDate, Double> newHistoricalValues = new HashMap<>();
-                newHistoricalValues.put(LocalDate.now().minusDays(1), 10.0);
-                newHistoricalValues.put(LocalDate.now().minusDays(2), 5.0);
+                Map<LocalDateTime, Double> newHistoricalValues = new HashMap<>();
+                newHistoricalValues.put(LocalDateTime.now().minusDays(1), 10.0);
+                newHistoricalValues.put(LocalDateTime.now().minusDays(2), 5.0);
 
                 Portfolio newPortfolio = portfolioDAO.updatePortfolioHistoricalValue(userForTests.getId(), newHistoricalValues);
                 Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userForTests.getId());
@@ -194,9 +194,9 @@ public class PortfolioDAOTests {
             public void testUpdatePortfolioHistoricalValue_whenUserHasNoPortfolio_thenThrowsException() {
                 Portfolio foundPortfolio = portfolioDAO.findPortfolioByUserId(userForTests.getId());
 
-                Map<LocalDate, Double> newHistoricalValues = new HashMap<>();
-                newHistoricalValues.put(LocalDate.now().minusDays(1), 10.0);
-                newHistoricalValues.put(LocalDate.now().minusDays(2), 5.0);
+                Map<LocalDateTime, Double> newHistoricalValues = new HashMap<>();
+                newHistoricalValues.put(LocalDateTime.now().minusDays(1), 10.0);
+                newHistoricalValues.put(LocalDateTime.now().minusDays(2), 5.0);
 
                 assertNull(foundPortfolio);
                 assertThrows(UserNotFoundException.class, () -> portfolioDAO.updatePortfolioHistoricalValue(userForTests.getId(), newHistoricalValues));
@@ -212,7 +212,7 @@ public class PortfolioDAOTests {
             @Test
             public void testUpdatePortfolioHistoricalValue_whenNewHistoricalValuesIsEmpty_thenThrowsException() {
                 createPortfolioForTests(userForTests);
-                Map<LocalDate, Double> newHistoricalValues = new HashMap<>();
+                Map<LocalDateTime, Double> newHistoricalValues = new HashMap<>();
 
                 assertThrows(IllegalArgumentException.class, () -> portfolioDAO.updatePortfolioHistoricalValue(userForTests.getId(), newHistoricalValues));
             }
@@ -234,8 +234,8 @@ public class PortfolioDAOTests {
         Map<String, Integer> stocks = new HashMap<>();
         stocks.put("Test", 1);
 
-        Map<LocalDate, Double> historicalValue = new HashMap<>();
-        historicalValue.put(LocalDate.now(), 1.0);
+        Map<LocalDateTime, Double> historicalValue = new HashMap<>();
+        historicalValue.put(LocalDateTime.now(), 1.0);
 
         Portfolio newPortfolio = new Portfolio(userForTests, stocks, 1.0, historicalValue);
 

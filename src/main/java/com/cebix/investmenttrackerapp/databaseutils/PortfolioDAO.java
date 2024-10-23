@@ -11,7 +11,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -70,14 +70,24 @@ public class PortfolioDAO {
     }
 
     public Portfolio updatePortfolioStocksCollection(long customUserId, Map<String, Integer> newStocks) {
-        return updatePortfolioField(customUserId, portfolio -> portfolio.setStocks(newStocks), this::validateStock, newStocks, "Stocks");
+        return updatePortfolioField(
+                customUserId,
+                portfolio -> {
+                    newStocks.forEach((stockTicker, amount) -> {
+                        portfolio.getStocks().merge(stockTicker, amount, Integer::sum);
+                    });
+                },
+                this::validateStock,
+                newStocks,
+                "Stocks"
+        );
     }
 
     public Portfolio updatePortfolioOverallValue(long customUserId, double newOverallValue) {
         return updatePortfolioField(customUserId, portfolio -> portfolio.setOverallValue(newOverallValue), this::validateOverallValue, newOverallValue, "OverallValue");
     }
 
-    public Portfolio updatePortfolioHistoricalValue(long customUserId, Map<LocalDate, Double> newHistoricalValues) {
+    public Portfolio updatePortfolioHistoricalValue(long customUserId, Map<LocalDateTime, Double> newHistoricalValues) {
         return updatePortfolioField(customUserId, portfolio -> portfolio.setHistoricalValue(newHistoricalValues), this::validateHistoricalValue, newHistoricalValues, "HistoricalValue");
     }
 
@@ -110,7 +120,7 @@ public class PortfolioDAO {
         return overallValue >= 0;
     }
 
-    private boolean validateHistoricalValue(Map<LocalDate, Double> historicalValues) {
+    private boolean validateHistoricalValue(Map<LocalDateTime, Double> historicalValues) {
         return historicalValues != null && !historicalValues.isEmpty();
     }
 

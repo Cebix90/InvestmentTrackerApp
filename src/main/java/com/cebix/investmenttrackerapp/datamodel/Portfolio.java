@@ -2,7 +2,7 @@ package com.cebix.investmenttrackerapp.datamodel;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,12 +27,12 @@ public class Portfolio {
     @CollectionTable(name = "portfolio_historical_value", joinColumns = @JoinColumn(name = "portfolio_id"))
     @MapKeyColumn(name = "date")
     @Column(name = "value")
-    private Map<LocalDate, Double> historicalValue;
+    private Map<LocalDateTime, Double> historicalValue;
 
     public Portfolio() {
     }
 
-    public Portfolio(CustomUser user, Map<String, Integer> stocks, double overallValue, Map<LocalDate, Double> historicalValue) {
+    public Portfolio(CustomUser user, Map<String, Integer> stocks, double overallValue, Map<LocalDateTime, Double> historicalValue) {
         this.user = user;
         this.stocks = stocks;
         this.overallValue = overallValue;
@@ -71,11 +71,11 @@ public class Portfolio {
         this.overallValue = overallValue;
     }
 
-    public Map<LocalDate, Double> getHistoricalValue() {
+    public Map<LocalDateTime, Double> getHistoricalValue() {
         return historicalValue;
     }
 
-    public void setHistoricalValue(Map<LocalDate, Double> historicalValue) {
+    public void setHistoricalValue(Map<LocalDateTime, Double> historicalValue) {
         this.historicalValue = historicalValue;
     }
 
