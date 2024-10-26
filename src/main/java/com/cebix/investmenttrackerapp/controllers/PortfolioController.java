@@ -5,10 +5,12 @@ import com.cebix.investmenttrackerapp.databaseutils.CustomUserSessionFactory;
 import com.cebix.investmenttrackerapp.databaseutils.PortfolioDAO;
 import com.cebix.investmenttrackerapp.datamodel.CustomUser;
 import com.cebix.investmenttrackerapp.datamodel.Portfolio;
+import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +26,20 @@ public class PortfolioController {
     private final PortfolioDAO portfolioDAO = new PortfolioDAO(CustomUserSessionFactory.getCustomUserSessionFactory());
     private final CustomUserDAO customUserDAO = new CustomUserDAO(CustomUserSessionFactory.getCustomUserSessionFactory());
 
+    @GetMapping("")
+    public String showPortfolio(Model model) {
+        CustomUser loggedUser = getLoggedInUser();
+        Portfolio userPortfolio = portfolioDAO.findPortfolioByUserId(loggedUser.getId());
+
+        if (userPortfolio != null) {
+            model.addAttribute("portfolio", userPortfolio);
+        } else {
+            model.addAttribute("portfolio", new Portfolio());
+        }
+
+        return "portfolio";
+    }
+
     @GetMapping("/createPortfolio")
     public String showCreatePortfolioForm(Model model) {
         model.addAttribute("portfolio", new Portfolio());
@@ -34,9 +50,16 @@ public class PortfolioController {
     }
 
     @PostMapping("/createPortfolio")
-    public String createOrUpdatePortfolio(@RequestParam String ticker,
-                                          @RequestParam int amount,
-                                          Model model) {
+    public String createOrUpdatePortfolio(@Valid Portfolio portfolio,
+                                          BindingResult bindingResult,
+                                          Model model,
+                                          @RequestParam String ticker,
+                                          @RequestParam int amount) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("portfolio", portfolio);
+            return "createPortfolio";
+        }
+
         CustomUser loggedUser = getLoggedInUser();
         Portfolio existingPortfolio = portfolioDAO.findPortfolioByUserId(loggedUser.getId());
 
@@ -52,7 +75,7 @@ public class PortfolioController {
             portfolioDAO.savePortfolio(newPortfolio);
         }
 
-        return "portfolio";
+        return "redirect:/portfolio";
     }
 
     private CustomUser getLoggedInUser() {

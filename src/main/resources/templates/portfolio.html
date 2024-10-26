@@ -9,7 +9,30 @@
 </head>
 <body>
 <main layout:fragment="body">
-  <h1>PORTFOLIO</h1>
+    <div class="container d-flex flex-column align-items-center justify-content-center text-white">
+        <h2 class="mb-5">PORTFOLIO</h2>
+
+        <div class="table-responsive w-50">
+            <table class="table table-bordered text-white">
+                <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${portfolio.stocks}">
+                    <td th:text="${entry.key}">Ticker</td>
+                    <td th:text="${entry.value}">Amount</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            <a href="/portfolio/createPortfolio" class="btn btn-primary">Add New Stock</a>
+        </div>
+    </div>
 </main>
 </body>
 </html>
